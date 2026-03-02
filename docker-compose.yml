@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: postgres-bsn
-    image: postgres
+    image: postgres:16
     ports:
       - "5432:5432"
     environment:
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: book_social_network
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql
     networks:
       - spring-bsn-net
     restart: unless-stopped
@@ -33,6 +33,8 @@ services:
       - mail-dev
     networks:
       - spring-bsn-net
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
     restart: unless-stopped
 
 networks:
