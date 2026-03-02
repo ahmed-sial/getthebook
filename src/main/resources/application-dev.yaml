@@ -1,3 +1,30 @@
 spring:
-  application:
-    name: getthebook
+  datasource:
+    url: jdbc:postgresql://postgres:5432/book_social_network
+    username: username
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: mail-dev
+    port: 1025
+    username: ahmed
+    password: ahmed
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: false
+        starttls:
+          enable: false
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
