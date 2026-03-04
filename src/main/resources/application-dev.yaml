@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/book_social_network
-    username: username
-    password: password
+    url: jdbc:postgresql://localhost:5432/book_social_network
+    username: postgres
+    password: ahmed$ial
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -13,25 +13,10 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  mail:
-    host: mail-dev
-    port: 1025
-    username: ahmed
-    password: ahmed
-    properties:
-      mail:
-        smtp:
-          trust: "*"
-        auth: false
-        starttls:
-          enable: false
-          connectiontimeout: 5000
-          timeout: 3000
-          writetimeout: 5000
+
 logging:
   level:
     org.hibernate.sql: DEBUG
-
 application:
   security:
     jwt:

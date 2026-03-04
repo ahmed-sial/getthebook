@@ -1,25 +1,22 @@
 package com.ahmedhassan.getthebook.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 @Entity
-public class Role extends BaseEntity {
+public class Role {
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 	@Column(nullable = false, unique = true)
 	private String name;
 
