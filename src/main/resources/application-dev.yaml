@@ -7,7 +7,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -28,9 +28,12 @@ spring:
           connectiontimeout: 5000
           timeout: 3000
           writetimeout: 5000
+logging:
+  level:
+    org.hibernate.sql: DEBUG
 
 application:
   security:
     jwt:
-      expiration: 15
+      expiration: 86400000
       key: kKZ7$BS7b}U8(rmXTY7cSBq1{zhk[=;qIzyIM&0Q8S2h]C3W-xRZpx{O?*3SvoOQ
