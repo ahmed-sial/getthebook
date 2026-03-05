@@ -14,7 +14,7 @@ public record RegisterRequest (
 				String lastName,
 
 				@NotBlank(message = "Email must not be blank")
-				@Email
+				@Email(message = "Email is not well formatted")
 				String email,
 
 				@NotBlank(message = "Password must not be blank")
