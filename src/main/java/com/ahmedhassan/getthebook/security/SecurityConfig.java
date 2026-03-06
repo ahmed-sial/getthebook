@@ -2,6 +2,7 @@ package com.ahmedhassan.getthebook.security;
 
 import com.ahmedhassan.getthebook.security.filters.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -22,7 +24,8 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http
+    log.info("Configuring security filter chain...");
+    http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(request ->
@@ -46,7 +49,8 @@ public class SecurityConfig {
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(this.authenticationProvider)
-            .addFilterBefore(this.jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .build();
+            .addFilterBefore(this.jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    log.info("Security filter chain configuration complete");
+    return http.build();
   }
 }

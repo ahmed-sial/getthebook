@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.ahmedhassan.getthebook.enums.UserRoles.USER;
+import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 
 @Slf4j
 @Service
@@ -26,12 +27,12 @@ public class AuthService {
 	public RegisterResponse register(
 					@NonNull RegisterRequest registerRequest
 	) throws RoleNotFoundException {
-		log.info("Register user email: {}", registerRequest.email());
+		log.info("Initializing user service to register user email: {}", maskEmail(registerRequest.email()));
 		var userRole = roleRepository.findRoleByName(USER.name())
 						.orElseThrow(() -> {
 							log.warn("Registration failed. No role found with name {}", USER.name());
 							return new RoleNotFoundException(USER.name() + " role not found");
-						}); // TODO: Exception
+						});
 		log.info("Compiling user information to save in database");
 		var rawUser = User
 						.builder()
@@ -45,7 +46,7 @@ public class AuthService {
 						.build();
 		log.info("User information compiled. Saving user information to database");
 		var saveUser = this.userRepository.save(rawUser);
-		log.info("User registered successfully email={}", registerRequest.email());
+		log.info("User registered successfully email={}", maskEmail(registerRequest.email()));
 		return UserMapper.userEntityToRegisterResponse(saveUser);
 	}
 }

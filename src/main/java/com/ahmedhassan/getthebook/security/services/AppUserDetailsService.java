@@ -1,19 +1,17 @@
 package com.ahmedhassan.getthebook.security.services;
 
 import com.ahmedhassan.getthebook.repositories.UserRepository;
-import jakarta.annotation.Nonnull;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
@@ -22,7 +20,11 @@ public class AppUserDetailsService implements UserDetailsService {
 
 	@Override
 	public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+		log.info("Loading user by username: {}", maskEmail(username));
 		return this.userRepository.findUserByEmail(username)
-						.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+						.orElseThrow(() -> {
+							log.debug("User not found with username: {}", maskEmail(username));
+							return new UsernameNotFoundException("User not found with username: " + username);
+						});
 	}
 }

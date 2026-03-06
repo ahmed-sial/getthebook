@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -43,13 +45,27 @@ public class JwtService {
 	}
 
 	private boolean isJwtTokenExpired(String jwtToken) {
+		log.info("Checking if token has expired");
 		final var expiryDate = this.extractUserClaimFromJwtToken(jwtToken, Claims::getExpiration);
-		return expiryDate.before(new Date());
+		var isExpired = expiryDate.before(new Date());
+		if (isExpired) {
+			log.debug("Token expired");
+			return true;
+		}
+		log.info("Token not expired");
+		return false;
 	}
 
 	public boolean isJwtTokenValid(String jwtToken, @NonNull UserDetails userDetails) {
 		final String username = this.getUsernameFromJwtToken(jwtToken);
-		return userDetails.getUsername().equals(username) && !this.isJwtTokenExpired(jwtToken);
+		log.info("Checking if token is valid");
+		var isValid = userDetails.getUsername().equals(username) && !this.isJwtTokenExpired(jwtToken);
+		if (isValid) {
+			log.info("Token is valid");
+			return true;
+		}
+		log.info("Token not valid");
+		return false;
 	}
 
 	public String generateJwtToken(UserDetails userDetails) {
@@ -57,13 +73,14 @@ public class JwtService {
 	}
 
 	public String generateJwtToken(Map<String, Object> claims, @NonNull UserDetails userDetails) {
+		log.info("Getting started to generate new JWT token");
 		var authorities = userDetails
 						.getAuthorities()
 						.stream()
 						.map(GrantedAuthority::getAuthority)
 						.toList();
-
-		return Jwts
+		log.info("Compiling user information for JWT token");
+		var jwt = Jwts
 						.builder()
 						.subject(userDetails.getUsername())
 						.claims(claims)
@@ -72,6 +89,8 @@ public class JwtService {
 						.expiration(new Date(System.currentTimeMillis() + this.tokenExpiration))
 						.signWith(getSecretKey())
 						.compact();
+		log.info("Generated JWT token successfully");
+		return jwt;
 	}
 
 	public String getUsernameFromJwtToken(String jwtToken) {

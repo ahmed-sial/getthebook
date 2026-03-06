@@ -11,6 +11,7 @@ public class UserMapper {
 		log.info("Mapping user entity to registerResponse via UserMapper.userEntityToRegisterResponse");
 		return RegisterResponse
 						.builder()
+						.id(user.getId())
 						.firstName(user.getFirstName())
 						.lastName(user.getLastName())
 						.email(user.getEmail())

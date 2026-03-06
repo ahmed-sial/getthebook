@@ -30,8 +30,4 @@ public class AppBeansConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-//	@Bean
-//	public AuditorAware<UUID> auditorAware() {
-//		return new ApplicationAuditAware();
-//	}
 }

@@ -14,7 +14,5 @@ public class GetthebookApplication {
 
 }
 
-// TODO: Logging
-// TODO: OpenApi Docs
-// TODO: Global Exception Handler
 // TODO: Add Constraint to Entities
+// TODO: Schema not showing for all dtos
