@@ -12,4 +12,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ApiBadRequestResponse
 @ApiInternalServerErrorResponse
-public @interface CommonApiResponse {}
+public @interface ApiCommonResponse {}

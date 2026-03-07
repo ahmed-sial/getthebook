@@ -124,7 +124,9 @@ public class GlobalExceptionHandler {
 					@NonNull ConstraintDeclarationException ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
+		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+						new RuntimeException("An unexpected error occurred on our side. Please try again later"),
+						request);
 	}
 
 	// Invalid constraint definition configuration
@@ -133,7 +135,9 @@ public class GlobalExceptionHandler {
 					@NonNull ConstraintDefinitionException ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
+		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+						new RuntimeException("An unexpected error occurred on our side. Please try again later"),
+						request);
 	}
 
 	// Binding error when request parameters cannot be mapped to object fields
@@ -151,7 +155,17 @@ public class GlobalExceptionHandler {
 					@NonNull HttpMessageNotReadableException ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.BAD_REQUEST, ex, request);
+		var status = HttpStatus.BAD_REQUEST;
+		var error = ErrorResponse
+						.builder()
+						.timeStamp(Instant.now())
+						.status(status.value())
+						.error(status.getReasonPhrase())
+						.message("Unable to process request. Kindly provide a valid request")
+						.path(request.getRequestURI())
+						.build();
+		log.error("An exception occurred while processing the request", ex);
+		return ResponseEntity.status(status).body(error);
 	}
 
 	// Error while serializing response body
@@ -160,7 +174,17 @@ public class GlobalExceptionHandler {
 					@NonNull HttpMessageNotWritableException ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
+		var status = HttpStatus.INTERNAL_SERVER_ERROR;
+		var error = ErrorResponse
+						.builder()
+						.timeStamp(Instant.now())
+						.status(status.value())
+						.error(status.getReasonPhrase())
+						.message("An unexpected error occurred on our side. Please try again later")
+						.path(request.getRequestURI())
+						.build();
+		log.error("An exception occurred while processing the request", ex);
+		return ResponseEntity.status(status).body(error);
 	}
 
 	// Required request parameter missing
@@ -277,7 +301,10 @@ public class GlobalExceptionHandler {
 					@NonNull IOException ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException("An unexpected error occurred on our side. Please try again later"), request);
+		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+						new RuntimeException("An unexpected error occurred on our side. Please try again later"),
+						request
+		);
 	}
 
 	@ExceptionHandler(NoHandlerFoundException.class)
@@ -296,15 +323,15 @@ public class GlobalExceptionHandler {
 		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
 	}
 
-
-
 	// Catch-all fallback for any unhandled exception
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGenericException(
 					@NonNull Exception ex,
 					@NonNull HttpServletRequest request
 	) {
-		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex, request);
+		return buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+						new RuntimeException("An unexpected error occurred on our side. Please try again later"),
+						request);
 	}
 
 }

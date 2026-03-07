@@ -26,4 +26,4 @@ application:
   security:
     jwt:
       expiration: 86400000
-      key: kKZ7$BS7b}U8(rmXTY7cSBq1{zhk[=;qIzyIM&0Q8S2h]C3W-xRZpx{O?*3SvoOQ
+      key: 29a35fab8e057b9619ad5b01f4061cd50ca15275af0a8e6ecf1012b21d7d079d

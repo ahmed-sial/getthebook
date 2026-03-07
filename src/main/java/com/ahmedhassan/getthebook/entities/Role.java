@@ -21,12 +21,10 @@ public class Role {
 	@Column(nullable = false, unique = true)
 	private String name;
 
-	// Relationship
 	@OneToMany(
 					mappedBy = "role",
 					fetch = FetchType.LAZY
 	)
 	@JsonIgnore
 	private List<User> users;
-	//
 }

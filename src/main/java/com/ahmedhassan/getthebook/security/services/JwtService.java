@@ -8,9 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +25,7 @@ public class JwtService {
 	@Value("${application.security.jwt.key}")
 	private String secretKey;
 	@Value("${application.security.jwt.expiration}")
-	private Integer tokenExpiration;
+	private Long tokenExpiration;
 
 	private @NonNull SecretKey getSecretKey() {
 		final byte[] key = Decoders.BASE64.decode(this.secretKey);
@@ -74,17 +71,11 @@ public class JwtService {
 
 	public String generateJwtToken(Map<String, Object> claims, @NonNull UserDetails userDetails) {
 		log.info("Getting started to generate new JWT token");
-		var authorities = userDetails
-						.getAuthorities()
-						.stream()
-						.map(GrantedAuthority::getAuthority)
-						.toList();
 		log.info("Compiling user information for JWT token");
 		var jwt = Jwts
 						.builder()
 						.subject(userDetails.getUsername())
 						.claims(claims)
-						.claim("authorities", authorities)
 						.issuedAt(new Date(System.currentTimeMillis()))
 						.expiration(new Date(System.currentTimeMillis() + this.tokenExpiration))
 						.signWith(getSecretKey())

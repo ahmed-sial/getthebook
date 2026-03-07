@@ -1,6 +1,12 @@
 package com.ahmedhassan.getthebook.controllers;
 
+import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiConflictResponse;
+import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiNotFoundResponse;
+import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiUnauthorizedResponse;
+import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiCommonResponse;
+import com.ahmedhassan.getthebook.dtos.requests.LoginRequest;
 import com.ahmedhassan.getthebook.dtos.requests.RegisterRequest;
+import com.ahmedhassan.getthebook.dtos.responses.LoginResponse;
 import com.ahmedhassan.getthebook.dtos.responses.RegisterResponse;
 import com.ahmedhassan.getthebook.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +36,7 @@ import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 @Tag(name = "Authentication", description = "Manage user authentication")
 public class AuthController {
 
-	private final AuthService authService;
+	private final AuthService _authService;
 
 	@SecurityRequirement(name = "")
 	@PostMapping("/register")
@@ -50,6 +56,8 @@ public class AuthController {
 									schema = @Schema(implementation = RegisterResponse.class)
 
 					))
+	@ApiConflictResponse
+	@ApiCommonResponse
 	public ResponseEntity<RegisterResponse> register(
 					@RequestBody
 					@Valid
@@ -57,13 +65,48 @@ public class AuthController {
 	) {
 		log.info("Create user request received for email={}", maskEmail(registerRequest.email()));
 
-		var response = authService.register(registerRequest);
+		var response = _authService.register(registerRequest);
 
 		log.info("Create user request processed successfully for email={}", maskEmail(registerRequest.email()));
 
 		return ResponseEntity
 						.status(HttpStatus.CREATED)
 						.location(URI.create("/users/" + response.id()))
+						.body(response);
+	}
+
+	@SecurityRequirement(name = "")
+	@PostMapping("/login")
+	@Operation(
+					summary = "Login a user",
+					description = "Login an existing user in system to account",
+					requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+									description = "User login details",
+									required = true
+					)
+	)
+	@ApiResponse(
+					responseCode = "200",
+					description = "User logged in successfully",
+					content = @Content(
+									mediaType = "application/json",
+									schema = @Schema(implementation = LoginResponse.class)
+					)
+	)
+	@ApiUnauthorizedResponse
+	@ApiNotFoundResponse
+	@ApiCommonResponse
+	public ResponseEntity<LoginResponse> login(
+					@RequestBody
+					@Valid
+					LoginRequest loginRequest
+	) {
+		log.info("Login request received for email={}", maskEmail(loginRequest.email()));
+
+		var response = _authService.login(loginRequest);
+		log.info("Login request processed successfully for email={}", maskEmail(loginRequest.email()));
+		return ResponseEntity
+						.status(HttpStatus.OK)
 						.body(response);
 	}
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Getter
 @Setter
@@ -25,9 +23,13 @@ import java.util.List;
 @Table(name = "app_user")
 @Entity
 public class User extends BaseEntity implements Principal, UserDetails {
+    @Column(nullable = false, length = 20)
     private String firstName;
+    @Column(nullable = false, length = 20)
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false)
     private String password;
     private Boolean isAccountEnabled;
     private Boolean isAccountLocked;
@@ -38,11 +40,9 @@ public class User extends BaseEntity implements Principal, UserDetails {
         return this.firstName + " " + this.lastName;
     }
 
-    // Relationship
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-    //
 
     @Override
     public String getName() {
