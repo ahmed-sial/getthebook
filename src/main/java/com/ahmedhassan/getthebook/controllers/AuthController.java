@@ -110,3 +110,4 @@ public class AuthController {
 						.body(response);
 	}
 }
+// TODO: Add /api/v1/auth/me and /api/v1/auth/logout endpoints

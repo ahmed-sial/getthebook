@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,7 +32,9 @@ public class User extends BaseEntity implements Principal, UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Column(columnDefinition = "boolean default true")
     private Boolean isAccountEnabled;
+    @Column(columnDefinition = "boolean default true")
     private Boolean isAccountLocked;
 
     @Transient
@@ -43,6 +46,9 @@ public class User extends BaseEntity implements Principal, UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Book> books;
 
     @Override
     public String getName() {

@@ -23,17 +23,11 @@ public class BaseEntity {
     @Id
     private UUID id;
 
-    @PrePersist
-    void prePersist() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID();
-        }
-    }
+
 
     @CreatedBy
     @Column(
-            updatable = false,
-            nullable = false
+            updatable = false
     )
     private UUID createdBy;
 
@@ -49,4 +43,11 @@ public class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    void prePersist() {
+        if (this.id == null) id = UUID.randomUUID();
+        if (createdAt == null) createdAt = LocalDateTime.now();
+        if (updatedAt == null) updatedAt = LocalDateTime.now();
+    }
 }

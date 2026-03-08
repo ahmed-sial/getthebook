@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Builder
-@Schema(name = "RegisterResponse", description = "General response for system user")
+@Schema(name = "RegisterResponse", description = "User details on successful registration of user")
 public record RegisterResponse(
 				@Schema(description = "User unique ID")
 				UUID id,
