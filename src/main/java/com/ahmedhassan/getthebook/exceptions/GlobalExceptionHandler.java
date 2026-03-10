@@ -1,6 +1,9 @@
 package com.ahmedhassan.getthebook.exceptions;
 
 import com.ahmedhassan.getthebook.dtos.responses.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintDeclarationException;
@@ -41,7 +44,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
 	private @NonNull ResponseEntity<ErrorResponse> buildErrorResponseEntity(
-					HttpStatus status,
+					@NonNull HttpStatus status,
 					@NonNull Exception ex,
 					@NonNull HttpServletRequest request
 	) {
@@ -257,6 +260,14 @@ public class GlobalExceptionHandler {
 					@NonNull HttpServletRequest request
 	) {
 		return buildErrorResponseEntity(HttpStatus.FORBIDDEN, ex, request);
+	}
+
+	@ExceptionHandler(JwtException.class)
+	public ResponseEntity<ErrorResponse> handleJwtGenericException(
+					@NonNull JwtException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.UNAUTHORIZED, ex, request);
 	}
 
 	// Generic authentication failure

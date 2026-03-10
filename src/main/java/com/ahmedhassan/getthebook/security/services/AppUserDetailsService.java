@@ -16,12 +16,12 @@ import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 @RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
 
-	private final UserRepository userRepository;
+	private final UserRepository _userRepository;
 
 	@Override
 	public @NonNull UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
 		log.info("Loading user by username: {}", maskEmail(username));
-		return this.userRepository.findUserByEmail(username)
+		return _userRepository.findUserByEmail(username)
 						.orElseThrow(() -> {
 							log.debug("User not found with username: {}", maskEmail(username));
 							return new UsernameNotFoundException("User not found with username: " + username);

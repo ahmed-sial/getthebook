@@ -22,13 +22,13 @@ import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 @Tag(name = "Book", description = "Manage books in the system")
 public class BookController {
 
-	public ResponseEntity<PagedResponse<BookResponse>> fetchAllBooks(
-					@RequestParam(name = "page", defaultValue = "0", required = false) int pageNumber,
-					@RequestParam(name = "size", defaultValue = "10", required = false) int pageSize,
-					@AuthenticationPrincipal @NonNull User user
-	) {
-		log.info("Fetch all books request received for user email={}", maskEmail(user.getEmail()));
-		return null;
-	}
+//	public ResponseEntity<PagedResponse<BookResponse>> fetchAllBooks(
+//					@RequestParam(name = "page", defaultValue = "0", required = false) int pageNumber,
+//					@RequestParam(name = "size", defaultValue = "10", required = false) int pageSize,
+//					@AuthenticationPrincipal @NonNull User user
+//	) {
+//		log.info("Fetch all books request received for user email={}", maskEmail(user.getEmail()));
+//		return null;
+//	}
 
 }

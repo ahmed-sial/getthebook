@@ -19,8 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-  private final AuthenticationProvider authenticationProvider;
-  private final JwtAuthFilter jwtAuthFilter;
+  private final AuthenticationProvider _authenticationProvider;
+  private final JwtAuthFilter _jwtAuthFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,8 +48,8 @@ public class SecurityConfig {
             )
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authenticationProvider(this.authenticationProvider)
-            .addFilterBefore(this.jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .authenticationProvider(_authenticationProvider)
+            .addFilterBefore(_jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     log.info("Security filter chain configuration complete");
     return http.build();
   }

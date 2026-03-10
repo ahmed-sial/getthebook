@@ -32,7 +32,7 @@ public class JwtService {
 		return Keys.hmacShaKeyFor(key);
 	};
 
-	private Claims extractUserClaimsFromJwtToken(String jwtToken) {
+	public Claims extractUserClaimsFromJwtToken(String jwtToken) {
 		return Jwts
 						.parser()
 						.verifyWith(getSecretKey())

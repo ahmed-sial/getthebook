@@ -25,8 +25,8 @@ import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-	private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
+	private final JwtService _jwtService;
+	private final UserDetailsService _userDetailsService;
 
 	@Override
 	protected void doFilterInternal(
@@ -34,7 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 					@NonNull HttpServletResponse response,
 					@NonNull FilterChain filterChain
 	) throws ServletException, IOException {
-		if (request.getServletPath().contains("/api/v1/auth")) {
+		log.info("Invoke doFilterInternal to check for request URI");
+		if (request.getServletPath().startsWith("/auth")) {
+			log.info("Request is of user authentication");
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -45,12 +47,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			return;
 		}
 		final String jwtToken = authHeader.substring(7);
-		final String email = jwtService.extractUserClaimFromJwtToken(jwtToken, Claims::getSubject);
+		final String email = _jwtService.extractUserClaimFromJwtToken(jwtToken, Claims::getSubject);
 		log.info("JWT token found for user email: {}", maskEmail(email));
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			log.info("Authentication not found for user email: {}", email);
-			var userDetails = userDetailsService.loadUserByUsername(email);
-			if (jwtService.isJwtTokenValid(jwtToken, userDetails)) {
+			var userDetails = _userDetailsService.loadUserByUsername(email);
+			if (_jwtService.isJwtTokenValid(jwtToken, userDetails)) {
 				UsernamePasswordAuthenticationToken userAuthToken = new
 								UsernamePasswordAuthenticationToken(
 								userDetails,

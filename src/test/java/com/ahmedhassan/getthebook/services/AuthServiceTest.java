@@ -1,5 +1,6 @@
 package com.ahmedhassan.getthebook.services;
 
+import com.ahmedhassan.getthebook.dtos.requests.LoginRequest;
 import com.ahmedhassan.getthebook.dtos.requests.RegisterRequest;
 import com.ahmedhassan.getthebook.entities.Role;
 import com.ahmedhassan.getthebook.entities.User;
@@ -17,8 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +49,7 @@ public class AuthServiceTest {
 
 	private Role testRole;
 	private User testUser;
+	// Add other relationships here
 
 	@BeforeEach
 	void setUp() {
@@ -81,7 +87,7 @@ public class AuthServiceTest {
 			assertThat(response.firstName()).isEqualTo(testUser.getFirstName());
 			assertThat(response.lastName()).isEqualTo(testUser.getLastName());
 		}
-
+		// CHECK: Should check auditing fields?
 		@Test
 		@DisplayName("Should encode password before saving - never store plain text")
 		void register_WithValidRequest_ShouldEncodePasswordBeforeSaving() {
@@ -92,8 +98,9 @@ public class AuthServiceTest {
 
 			_authService.register(validRequest);
 
-			ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-			then(_userRepository).should(times(1)).save(userCaptor.capture());
+			var userCaptor = ArgumentCaptor.forClass(User.class);
+			then(_userRepository).should(times(1))
+							.save(userCaptor.capture());
 
 			User savedUser = userCaptor.getValue();
 			assertThat(savedUser.getPassword())
@@ -160,6 +167,99 @@ public class AuthServiceTest {
 	@Nested
 	@DisplayName("login()")
 	class LoginTests {
+
+		private LoginRequest validRequest;
+
+		@BeforeEach
+		void setUp() {
+			validRequest = buildLoginRequest();
+		}
+
+		@Test
+		@DisplayName("Should return response with JWT token when credentials are valid")
+		void login_WithValidRequest_ShouldReturnLoginResponseWithJwtToken() {
+			var authToken = new UsernamePasswordAuthenticationToken(
+							testUser,
+							null,
+							testUser.getAuthorities()
+			);
+			given(_authenticationManager.authenticate(any())).willReturn(authToken);
+			given(_jwtService.generateJwtToken(any(), any(User.class)))
+							.willReturn("jwt-token-xyz");
+
+			var response = _authService.login(validRequest);
+
+			assertThat(response).isNotNull();
+			assertThat(response.token()).isEqualTo("jwt-token-xyz");
+			assertThat(response.email()).isEqualTo(testUser.getEmail());
+			// CHECK: Should all properties be checked or only one or two?
+		}
+
+		@Test
+		@DisplayName("Should return JWT token exactly once on successful login")
+		void login_WithValidRequest_ShouldReturnJWTTokenExactlyOnce() {
+			var authToken = new UsernamePasswordAuthenticationToken(
+							testUser,
+							null,
+							testUser.getAuthorities()
+			);
+
+			given(_authenticationManager.authenticate(any())).willReturn(authToken);
+			given(_jwtService.generateJwtToken(any(), any(User.class)))
+							.willReturn("jwt-token-xyz");
+
+			_authService.login(validRequest);
+			then(_jwtService).should(times(1))
+							.generateJwtToken(any(), any(User.class));
+		}
+
+		@Test
+		@DisplayName("Should include fullName and id in JWT claims")
+		void login_WithValidRequest_ShouldIncludeFullNameAndIdInJWTClaims() {
+			var authToken = new UsernamePasswordAuthenticationToken(
+							testUser,
+							null,
+							testUser.getAuthorities()
+			);
+			given(_authenticationManager.authenticate(any())).willReturn(authToken);
+			given(_jwtService.generateJwtToken(any(), any(User.class)))
+							.willReturn("jwt-token-xyz");
+
+			_authService.login(validRequest);
+
+			var claimsCaptor = ArgumentCaptor.forClass(HashMap.class);
+			then(_jwtService).should(times(1))
+							.generateJwtToken(claimsCaptor.capture(), any(User.class));
+
+			var capturedClaims = claimsCaptor.getValue();
+			assertThat(capturedClaims).containsKey("fullName");
+			assertThat(capturedClaims).containsKey("id");
+		}
+
+		@Test
+		@DisplayName("Should throw when credentials are wrong")
+		void login_WithWrongCredentials_ShouldThrowBadCredentialsException() {
+			given(_authenticationManager.authenticate(any()))
+							.willThrow(new BadCredentialsException("Bad credentials"));
+
+			assertThatThrownBy(() -> _authService.login(validRequest))
+							.isInstanceOf(BadCredentialsException.class);
+
+			then(_jwtService).shouldHaveNoInteractions();
+		}
+
+		@Test
+		@DisplayName("Should throw IllegalStateException when principal is not a User instance")
+		void login_WhenPrincipalIsNotUser_ShouldThrowIllegalStateException() {
+			UsernamePasswordAuthenticationToken authToken =
+							new UsernamePasswordAuthenticationToken("just-a-string", null);
+			given(_authenticationManager.authenticate(any())).willReturn(authToken);
+
+			assertThatThrownBy(() -> _authService.login(validRequest))
+							.isInstanceOf(IllegalStateException.class)
+							.hasMessageContaining("Unexpected principal type");
+		}
+
 	}
 
 }

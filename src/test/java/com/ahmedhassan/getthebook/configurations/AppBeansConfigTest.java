@@ -1,5 +1,6 @@
 package com.ahmedhassan.getthebook.configurations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,25 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@RequiredArgsConstructor
-public class AppBeansConfig {
-	private final UserDetailsService _userDetailsService;
+public class AppBeansConfigTest {
 	@Bean
-	public AuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider daoAuthenticationProvider = new
-						DaoAuthenticationProvider(_userDetailsService);
-		daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-		return daoAuthenticationProvider;
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
 	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
-		return configuration.getAuthenticationManager();
-	}
-
 }
