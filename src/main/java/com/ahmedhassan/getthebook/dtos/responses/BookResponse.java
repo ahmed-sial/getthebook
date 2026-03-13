@@ -3,6 +3,7 @@ package com.ahmedhassan.getthebook.dtos.responses;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public record BookResponse(
 				@Schema(description = "Book publisher name")
 				String publisher,
 				@Schema(description = "Book publishing date")
-				Date publicationDate,
+				LocalDate publicationDate,
 				@Schema(description = "Book cover URL")
 				String bookCover,
 				@Schema(description = "Book allowed to share")

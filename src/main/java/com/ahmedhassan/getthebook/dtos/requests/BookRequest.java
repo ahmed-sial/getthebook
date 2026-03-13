@@ -40,7 +40,7 @@ public record BookRequest(
 				@JsonFormat(pattern = "yyyy-MM-dd")
 				@Schema(description = "Publication date of new book", example = "2000-01-01")
 				LocalDate publicationDate,
-				// book cover
+				// TODO: Book cover
 				@Schema(description = "Is new book archived?", example = "true")
 				Boolean isArchived,
 				@Schema(description = "Is new book allowed to share?", example = "true")

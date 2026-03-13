@@ -1,10 +1,11 @@
 package com.ahmedhassan.getthebook.controllers;
 
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiGetOperation;
+import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiSaveOperation;
+import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedBookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
-import com.ahmedhassan.getthebook.entities.Book;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.services.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -112,8 +114,42 @@ public class BookController {
 						.body(response);
 	}
 
-	public ResponseEntity<BookResponse> createNewBook() {
-
+	@SecurityRequirement(name = "Bearer Authentication")
+	@PostMapping
+	@Operation(
+					summary = "Create a new book",
+					description = "Create a new book entry for the current logged in user"
+	)
+	@ApiResponse(
+					responseCode = "201",
+					description = "New book record saved successfully",
+					content = @Content(
+									mediaType = "application/json",
+									schema = @Schema(implementation = BookResponse.class)
+					)
+	)
+	@ApiSaveOperation
+	public ResponseEntity<BookResponse> createNewBook(
+					@RequestBody
+					@Valid
+					@io.swagger.v3.oas.annotations.parameters.RequestBody(
+									description = "New book's details",
+									required = true,
+									content = @Content(
+													mediaType = "application/json",
+													schema = @Schema(implementation = BookRequest.class)
+									)
+					)
+					BookRequest bookRequest,
+					@Parameter(hidden = true)
+					@AuthenticationPrincipal @NonNull User user
+	) {
+		log.info("Create new book request received for user email={}", maskEmail(user.getEmail()));
+		var response = _bookService.createNewBook(bookRequest, user);
+		log.info("Create new book request executed successfully");
+		return ResponseEntity
+						.status(HttpStatus.CREATED)
+						.body(response);
 	}
 
 }

@@ -45,7 +45,11 @@ public class AuthController {
 					description = "Creates a new user account in the system",
 					requestBody =  @io.swagger.v3.oas.annotations.parameters.RequestBody(
 									description = "User registration details",
-									required = true
+									required = true,
+									content = @Content(
+													mediaType = "application/json",
+													schema = @Schema(implementation = RegisterRequest.class)
+									)
 					)
 	)
 	@ApiResponse(
@@ -82,7 +86,11 @@ public class AuthController {
 					description = "Login an existing user in system to account",
 					requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 									description = "User login details",
-									required = true
+									required = true,
+									content = @Content(
+													mediaType = "application/json",
+													schema = @Schema(implementation = LoginRequest.class)
+									)
 					)
 	)
 	@ApiResponse(

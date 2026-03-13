@@ -1,14 +1,16 @@
 package com.ahmedhassan.getthebook.mappers;
 
+import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.Book;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 
 @Slf4j
 public class BookMapper {
-	public static BookResponse toBookResponse(Book book) {
+	public static BookResponse toBookResponse(@NonNull Book book) {
 		log.info("Converting Book to BookResponse");
 		return BookResponse
 						.builder()
@@ -27,7 +29,7 @@ public class BookMapper {
 						.build();
 	}
 
-	public static PagedResponse<BookResponse> toPagedBookResponse(Page<Book> books) {
+	public static PagedResponse<BookResponse> toPagedBookResponse(@NonNull Page<Book> books) {
 		log.info("Converting Books to PagedResponse");
 		var bookResponse = books
 						.stream()
@@ -44,4 +46,20 @@ public class BookMapper {
 		);
 	}
 
+	public static Book toBook(@NonNull BookRequest request) {
+		log.info("Converting BookRequest to Book");
+		return Book
+						.builder()
+						.title(request.title())
+						.genre(request.genre())
+						.isbn(request.isbn())
+						.author(request.author())
+						.synopsis(request.synopsis())
+						.publisher(request.publisher())
+						.publicationDate(request.publicationDate())
+						// TODO: .bookCover()
+						.isArchived(request.isArchived())
+						.isShareable(request.isShareable())
+						.build();
+	}
 }

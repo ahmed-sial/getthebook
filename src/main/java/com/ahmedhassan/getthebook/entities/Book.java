@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -29,7 +29,7 @@ public class Book extends BaseEntity {
     @Column(nullable = false, updatable = false, length = 100)
     private String publisher;
     @Column(nullable = false, updatable = false)
-    private Date publicationDate;
+    private LocalDate publicationDate;
     @Column(nullable = false)
     private String bookCover;
     @Column(nullable = false)

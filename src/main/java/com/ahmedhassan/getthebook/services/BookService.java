@@ -1,5 +1,6 @@
 package com.ahmedhassan.getthebook.services;
 
+import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
@@ -17,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static com.ahmedhassan.getthebook.mappers.BookMapper.toBookResponse;
-import static com.ahmedhassan.getthebook.mappers.BookMapper.toPagedBookResponse;
+import static com.ahmedhassan.getthebook.mappers.BookMapper.*;
 import static com.ahmedhassan.getthebook.specifications.BookSpecification.*;
 
 @Slf4j
@@ -53,6 +53,18 @@ public class BookService {
 							return new BookNotFoundException("Book not found for id=" + bookId);
 						});
 		return toBookResponse(book);
+	}
+
+	public BookResponse createNewBook(
+					BookRequest bookRequest,
+					User user
+	) {
+		var book = toBook(bookRequest);
+		//TODO: book.setBookCover("");
+		book.setUser(user);
+		log.info("Saving new book with id = {}", book.getId());
+		var savedBook = _bookRepository.save(book);
+		return toBookResponse(savedBook);
 	}
 
 }
