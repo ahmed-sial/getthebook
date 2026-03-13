@@ -4,6 +4,7 @@ import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiGetOperation;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedBookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
+import com.ahmedhassan.getthebook.entities.Book;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.services.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -109,6 +110,10 @@ public class BookController {
 		return ResponseEntity
 						.status(HttpStatus.OK)
 						.body(response);
+	}
+
+	public ResponseEntity<BookResponse> createNewBook() {
+
 	}
 
 }
