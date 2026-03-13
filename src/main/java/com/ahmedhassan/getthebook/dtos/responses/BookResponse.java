@@ -27,6 +27,10 @@ public record BookResponse(
 				Date publicationDate,
 				@Schema(description = "Book cover URL")
 				String bookCover,
+				@Schema(description = "Book allowed to share")
+				Boolean isShareable,
+				@Schema(description = "Book archived")
+				Boolean isArchived,
 				@Schema(description = "Book owner ID")
 				UUID ownerId
 ) {

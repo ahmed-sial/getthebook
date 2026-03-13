@@ -8,6 +8,7 @@ import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.services.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,10 +22,9 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 
@@ -76,7 +76,40 @@ public class BookController {
 						.body(response);
 	}
 
-	// CONTINUE
+	@SecurityRequirement(name = "Bearer Authentication")
+	@GetMapping("{book-id}")
+	@Operation(
+					summary = "Fetch single book",
+					description = "Fetch single book by it's ID"
+	)
+	@ApiResponse(
+					responseCode = "200",
+					description = "Book fetched successfully",
+					content = @Content(
+									mediaType = "application/json",
+									schema = @Schema(implementation = BookResponse.class)
+					)
+	)
+	@ApiGetOperation
+	public ResponseEntity<BookResponse> fetchSingleBook(
+					@Parameter(
+									description = "Unique identifier of book",
+									example = "550e8400-e29b-41d4-a716-446655440000",
+									required = true,
+									in = ParameterIn.PATH
+					)
+					@PathVariable("book-id")
+					UUID bookId,
+					@Parameter(hidden = true)
+					@AuthenticationPrincipal @NonNull User user
+	) {
+		log.info("Fetch single book request received for user email={}", maskEmail(user.getEmail()));
+		var response = _bookService.findSingleBookById(bookId);
+		log.info("Fetch single book request executed successfully");
+		return ResponseEntity
+						.status(HttpStatus.OK)
+						.body(response);
+	}
 
 }
 // TODO: Implement sorting and filtering

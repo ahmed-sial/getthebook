@@ -22,6 +22,8 @@ public class BookMapper {
 						.publicationDate(book.getPublicationDate())
 						.bookCover(book.getBookCover())
 						.ownerId(book.getUser().getId())
+						.isShareable(book.getIsShareable())
+						.isArchived(book.getIsArchived())
 						.build();
 	}
 
