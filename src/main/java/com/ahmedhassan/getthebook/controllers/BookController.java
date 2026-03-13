@@ -63,13 +63,13 @@ public class BookController {
 									example = "0"
 					)
 					@RequestParam(name = "page", defaultValue = "0", required = false)
-					@Min(0) int pageNumber,
+					@Min(0) Integer pageNumber,
 					@Parameter(
 									description = "Number of records per page",
 									example = "10"
 					)
 					@RequestParam(name = "size", defaultValue = "10", required = false)
-					@Max(50) int pageSize,
+					@Max(50) Integer pageSize,
 					@Parameter(hidden = true)
 					@AuthenticationPrincipal @NonNull User user
 	) {
@@ -191,7 +191,7 @@ public class BookController {
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Update book request received for user email={}", maskEmail(user.getEmail()));
-		var response = _bookService.updateBook(bookId, bookRequest, user);
+		var response = _bookService.updateBook(bookId, bookRequest);
 		log.info("Update book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
@@ -203,9 +203,25 @@ public class BookController {
 					@PathVariable("book-id") UUID bookId,
 					@AuthenticationPrincipal @NonNull User user
 	) {
-		log.info("Delete book request received for  user email={}", maskEmail(user.getEmail()));
+		log.info("Delete book request received for user email={}", maskEmail(user.getEmail()));
 		var response = _bookService.deleteBook(bookId, user);
 		log.info("Delete book request executed successfully");
+		return ResponseEntity
+						.status(HttpStatus.OK)
+						.body(response);
+	}
+
+	@GetMapping("/me")
+	public ResponseEntity<PagedResponse<BookResponse>> fetchBooksByOwner(
+					@RequestParam(name = "page", defaultValue = "0", required = false)
+					@Min(0) Integer pageNumber,
+					@RequestParam(name = "size", defaultValue = "10", required = false)
+					@Max(50) Integer sizeSize,
+					@AuthenticationPrincipal @NonNull User user
+	) {
+		log.info("Fetch all books for current user request received email={}", maskEmail(user.getEmail()));
+		var response = _bookService.findAllBooksByOwner(pageNumber, sizeSize, user);
+		log.info("Fetch all books for current user request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
 						.body(response);

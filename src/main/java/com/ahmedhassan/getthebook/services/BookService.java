@@ -6,10 +6,7 @@ import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.exceptions.BookNotFoundException;
-import com.ahmedhassan.getthebook.mappers.BookMapper;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
-import com.ahmedhassan.getthebook.specifications.BookSpecification;
-import com.ahmedhassan.getthebook.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -34,7 +31,7 @@ public class BookService {
 	public PagedResponse<BookResponse> findAllBooksExceptCurrentUser(
 					int pageNumber,
 					int pageSize,
-					@NonNull User user
+					User user
 	) {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt")
@@ -72,8 +69,7 @@ public class BookService {
 
 	public BookResponse updateBook(
 					UUID bookId,
-					@NonNull BookUpdateRequest bookRequest,
-					User user
+					@NonNull BookUpdateRequest bookRequest
 	) {
 		var book = _bookRepository.findById(bookId)
 						.orElseThrow(() -> {
@@ -114,6 +110,19 @@ public class BookService {
 		log.info("Deleting book with id = {}", book.getId());
 		_bookRepository.delete(book);
 		return book.getId();
+	}
+
+	public PagedResponse<BookResponse> findAllBooksByOwner(
+					Integer pageNumber,
+					Integer pageSize,
+					@NonNull User user
+	) {
+		log.info("Compiling paged request...");
+		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		var spec = Specification.where(withOwnerId(user.getId()));
+		log.info("Fetching all the books for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
+		var books = _bookRepository.findAll(spec, pageable);
+		return toPagedBookResponse(books);
 	}
 
 }
