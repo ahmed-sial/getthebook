@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static com.ahmedhassan.getthebook.enums.UserRoles.USER;
-import static com.ahmedhassan.getthebook.mappers.UserMapper.userEntityToLoginResponse;
-import static com.ahmedhassan.getthebook.mappers.UserMapper.userEntityToRegisterResponse;
+import static com.ahmedhassan.getthebook.mappers.UserMapper.toRegisterResponse;
+import static com.ahmedhassan.getthebook.mappers.UserMapper.toLoginResponse;
 import static com.ahmedhassan.getthebook.utils.Utils.maskEmail;
 
 @Slf4j
@@ -58,7 +58,7 @@ public class AuthService {
 		log.info("User information compiled. Saving user information to database");
 		var saveUser = _userRepository.save(rawUser);
 		log.info("User registered successfully email={}", maskEmail(registerRequest.email()));
-		return userEntityToRegisterResponse(saveUser);
+		return toRegisterResponse(saveUser);
 	}
 
 	public LoginResponse login(
@@ -84,6 +84,6 @@ public class AuthService {
 		claims.put("id", user.getId());
 		var jwtToken = _jwtService.generateJwtToken(claims, user);
 		log.info("Generated JWT token for authenticated user");
-		return userEntityToLoginResponse(user, jwtToken);
+		return toLoginResponse(user, jwtToken);
 	}
 }

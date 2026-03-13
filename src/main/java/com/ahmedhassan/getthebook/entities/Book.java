@@ -32,6 +32,10 @@ public class Book extends BaseEntity {
     private Date publicationDate;
     @Column(nullable = false)
     private String bookCover;
+    @Column(nullable = false)
+    private Boolean isArchived;
+    @Column(nullable = false)
+    private Boolean isShareable;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)

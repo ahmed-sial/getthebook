@@ -26,6 +26,8 @@ public record BookResponse(
 				@Schema(description = "Book publishing date")
 				Date publicationDate,
 				@Schema(description = "Book cover URL")
-				String bookCover
+				String bookCover,
+				@Schema(description = "Book owner ID")
+				UUID ownerId
 ) {
 }

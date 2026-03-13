@@ -1,11 +1,42 @@
 package com.ahmedhassan.getthebook.services;
 
+import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
+import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
+import com.ahmedhassan.getthebook.entities.User;
+import com.ahmedhassan.getthebook.mappers.BookMapper;
+import com.ahmedhassan.getthebook.repositories.BookRepository;
+import com.ahmedhassan.getthebook.specifications.BookSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import static com.ahmedhassan.getthebook.mappers.BookMapper.toPagedBookResponse;
+import static com.ahmedhassan.getthebook.specifications.BookSpecification.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
+
+	private final BookRepository _bookRepository;
+
+	public PagedResponse<BookResponse> findAllBooksExceptCurrentUser(
+					int pageNumber,
+					int pageSize,
+					User user
+	) {
+		log.info("Compiling paged request...");
+		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt")
+						.descending());
+		var spec = Specification
+						.where(shareable())
+						.and(notArchived())
+						.and(withoutOwnerId(user.getId()));
+		log.info("Fetching all the books for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
+		var books = _bookRepository.findAll(spec, pageable);
+		return toPagedBookResponse(books);
+	}
 }

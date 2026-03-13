@@ -1,5 +1,6 @@
 package com.ahmedhassan.getthebook.annotations.openapi.composed;
 
+import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiBadRequestResponse;
 import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiInternalServerErrorResponse;
 import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiNotFoundResponse;
 import com.ahmedhassan.getthebook.annotations.openapi.atomic.ApiUnauthorizedResponse;
@@ -13,5 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ApiNotFoundResponse
 @ApiUnauthorizedResponse
+@ApiBadRequestResponse
 @ApiInternalServerErrorResponse
 public @interface ApiGetOperation {}

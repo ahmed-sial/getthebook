@@ -19,7 +19,7 @@ public class PagedResponse<T> {
 	@Schema(description = "Current page size")
 	private Integer pageSize;
 	@Schema(description = "Total elements in the paginated response")
-	private Integer totalElements;
+	private Long totalElements;
 	@Schema(description = "Total pages in paginated response")
 	private Integer totalPages;
 	@Schema(description = "Check if current page is first page of paginated response")

@@ -8,8 +8,8 @@ import org.jspecify.annotations.NonNull;
 
 @Slf4j
 public class UserMapper {
-	public static RegisterResponse userEntityToRegisterResponse(@NonNull User user) {
-		log.info("Mapping user entity to registerResponse via UserMapper.userEntityToRegisterResponse");
+	public static RegisterResponse toRegisterResponse(@NonNull User user) {
+		log.info("Converting User to RegisterResponse");
 		return RegisterResponse
 						.builder()
 						.id(user.getId())
@@ -18,8 +18,8 @@ public class UserMapper {
 						.email(user.getEmail())
 						.build();
 	}
-	public static LoginResponse userEntityToLoginResponse(@NonNull User user, @NonNull String jwt) {
-		log.info("Mapping user entity to loginResponse via UserMapper.userEntityToLoginResponse");
+	public static LoginResponse toLoginResponse(@NonNull User user, @NonNull String jwt) {
+		log.info("Converting User to LoginResponse");
 		return LoginResponse
 						.builder()
 						.id(user.getId())
