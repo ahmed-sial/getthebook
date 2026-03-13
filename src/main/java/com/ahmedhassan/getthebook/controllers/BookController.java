@@ -204,23 +204,46 @@ public class BookController {
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Delete book request received for user email={}", maskEmail(user.getEmail()));
-		var response = _bookService.deleteBook(bookId, user);
+		var response = _bookService.deleteBook(bookId);
 		log.info("Delete book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
 						.body(response);
 	}
 
+	@SecurityRequirement(name = "Bearer Authentication")
+	@Operation(
+					summary = "Fetch books by owner",
+					description = "Fetch paged response of all the books of current logged in user"
+	)
 	@GetMapping("/me")
+	@ApiResponse(
+					responseCode = "200",
+					description = "Books fetched successfully",
+					content = @Content(
+									mediaType = "application/json",
+									schema = @Schema(implementation = PagedBookResponse.class)
+					)
+	)
+	@ApiGetOperation
 	public ResponseEntity<PagedResponse<BookResponse>> fetchBooksByOwner(
+					@Parameter(
+									description = "Page number (0-based index)",
+									example = "0"
+					)
 					@RequestParam(name = "page", defaultValue = "0", required = false)
 					@Min(0) Integer pageNumber,
+					@Parameter(
+									description = "Number of records per page",
+									example = "10"
+					)
 					@RequestParam(name = "size", defaultValue = "10", required = false)
-					@Max(50) Integer sizeSize,
+					@Max(50) Integer pageSize,
+					@Parameter(hidden = true)
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Fetch all books for current user request received email={}", maskEmail(user.getEmail()));
-		var response = _bookService.findAllBooksByOwner(pageNumber, sizeSize, user);
+		var response = _bookService.findAllBooksByOwner(pageNumber, pageSize, user);
 		log.info("Fetch all books for current user request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)

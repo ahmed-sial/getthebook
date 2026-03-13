@@ -334,6 +334,22 @@ public class GlobalExceptionHandler {
 		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
 	}
 
+	@ExceptionHandler(RoleNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleRoleNotFoundException(
+					@NonNull RoleNotFoundException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
+	}
+
+	@ExceptionHandler(BookNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleBookNotFoundException(
+					@NonNull BookNotFoundException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
+	}
+
 	// Catch-all fallback for any unhandled exception
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGenericException(

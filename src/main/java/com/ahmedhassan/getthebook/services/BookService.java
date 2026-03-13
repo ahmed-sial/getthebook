@@ -36,10 +36,11 @@ public class BookService {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt")
 						.descending());
-		var spec = Specification
-						.where(shareable())
-						.and(notArchived())
-						.and(withoutOwnerId(user.getId()));
+		var spec = Specification.allOf(
+						shareable(),
+						notArchived(),
+						withoutUserId(user.getId())
+		);
 		log.info("Fetching all the books for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
 		var books = _bookRepository.findAll(spec, pageable);
 		return toPagedBookResponse(books);
@@ -78,20 +79,30 @@ public class BookService {
 						});
 
 		log.info("Updating changed fields of book...");
-		var validGenre = isValidLength(bookRequest.genre(), 2, 20);
-		if (validGenre && !book.getGenre().equals(bookRequest.genre())) {
-			book.setGenre(bookRequest.genre());
+		if (bookRequest.genre() != null) {
+			var validGenre = isValidLength(bookRequest.genre(), 2, 20);
+			if (validGenre && !book.getGenre().equals(bookRequest.genre())) {
+				book.setGenre(bookRequest.genre());
+			}
 		}
-		var validSynopsis = isValidLength(bookRequest.synopsis(), 20, 255);
-		if (validSynopsis && !book.getSynopsis().equals(bookRequest.synopsis())) {
-			book.setSynopsis(bookRequest.synopsis());
+
+		if (bookRequest.synopsis() != null) {
+			var validSynopsis = isValidLength(bookRequest.synopsis(), 20, 255);
+			if (validSynopsis && !book.getSynopsis().equals(bookRequest.synopsis())) {
+				book.setSynopsis(bookRequest.synopsis());
+			}
 		}
 		// TODO: Book cover
-		if (book.getIsArchived() != bookRequest.isArchived()) {
-			book.setIsArchived(bookRequest.isArchived());
+		if (bookRequest.isArchived() != null) {
+			if (book.getIsArchived() != bookRequest.isArchived()) {
+				book.setIsArchived(bookRequest.isArchived());
+			}
 		}
-		if (book.getIsShareable() != bookRequest.isShareable()) {
-			book.setIsShareable(bookRequest.isShareable());
+
+		if (bookRequest.isShareable() != null) {
+			if (book.getIsShareable() != bookRequest.isShareable()) {
+				book.setIsShareable(bookRequest.isShareable());
+			}
 		}
 		log.info("Updating book completed. Saving to database...");
 		var updatedBook = _bookRepository.save(book);
@@ -99,8 +110,7 @@ public class BookService {
 	}
 
 	public UUID deleteBook(
-					UUID bookId,
-					User user
+					UUID bookId
 	) {
 		var book = _bookRepository.findById(bookId)
 						.orElseThrow(() -> {
@@ -119,7 +129,7 @@ public class BookService {
 	) {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
-		var spec = Specification.where(withOwnerId(user.getId()));
+		var spec = Specification.where(withUserId(user.getId()));
 		log.info("Fetching all the books for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
 		var books = _bookRepository.findAll(spec, pageable);
 		return toPagedBookResponse(books);

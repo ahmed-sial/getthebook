@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class Book extends BaseEntity {
     @Column(nullable = false, updatable = false, length = 100)
     private String title;
-    @Column(nullable = false, updatable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private String genre;
     @Column(nullable = false, updatable = false, unique = true, length = 13)
     private String isbn;
@@ -30,7 +30,7 @@ public class Book extends BaseEntity {
     private String publisher;
     @Column(nullable = false, updatable = false)
     private LocalDate publicationDate;
-    @Column(nullable = false)
+//    @Column(nullable = false) TODO
     private String bookCover;
     @Column(nullable = false)
     private Boolean isArchived;

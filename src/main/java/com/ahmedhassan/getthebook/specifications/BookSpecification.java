@@ -21,13 +21,13 @@ public class BookSpecification {
 	}
 
 	@Contract(pure = true)
-	public static @NonNull Specification<Book> withoutOwnerId(UUID ownerId) {
+	public static @NonNull Specification<Book> withoutUserId(UUID userId) {
 		return (root, query, cb) ->
-						cb.notEqual(root.get("owner").get("id"), ownerId);
+						cb.notEqual(root.get("user").get("id"), userId);
 	}
 
-	public static @NonNull Specification<Book> withOwnerId(UUID ownerId) {
+	public static @NonNull Specification<Book> withUserId(UUID userId) {
 		return (root, query, cb) ->
-						cb.equal(root.get("owner").get("id"), ownerId);
+						cb.equal(root.get("user").get("id"), userId);
 	}
 }

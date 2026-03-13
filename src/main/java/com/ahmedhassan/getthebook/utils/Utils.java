@@ -8,7 +8,7 @@ public class Utils {
 	}
 
 	public static @NonNull Boolean isValidLength(@NonNull String str, int min, int max) {
-		return !str.isEmpty() && str.length() <= min && str.length() <= max;
+		return !str.isEmpty() && str.length() >= min && str.length() <= max;
 	}
 
 }
