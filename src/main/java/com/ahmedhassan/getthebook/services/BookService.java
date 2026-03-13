@@ -1,6 +1,7 @@
 package com.ahmedhassan.getthebook.services;
 
 import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
+import com.ahmedhassan.getthebook.dtos.requests.BookUpdateRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
@@ -8,6 +9,7 @@ import com.ahmedhassan.getthebook.exceptions.BookNotFoundException;
 import com.ahmedhassan.getthebook.mappers.BookMapper;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
 import com.ahmedhassan.getthebook.specifications.BookSpecification;
+import com.ahmedhassan.getthebook.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
@@ -20,6 +22,7 @@ import java.util.UUID;
 
 import static com.ahmedhassan.getthebook.mappers.BookMapper.*;
 import static com.ahmedhassan.getthebook.specifications.BookSpecification.*;
+import static com.ahmedhassan.getthebook.utils.Utils.isValidLength;
 
 @Slf4j
 @Service
@@ -65,6 +68,52 @@ public class BookService {
 		log.info("Saving new book with id = {}", book.getId());
 		var savedBook = _bookRepository.save(book);
 		return toBookResponse(savedBook);
+	}
+
+	public BookResponse updateBook(
+					UUID bookId,
+					@NonNull BookUpdateRequest bookRequest,
+					User user
+	) {
+		var book = _bookRepository.findById(bookId)
+						.orElseThrow(() -> {
+							log.debug("Book not found for id={}", bookId);
+							return new BookNotFoundException("Book not found for id=" + bookId);
+						});
+
+		log.info("Updating changed fields of book...");
+		var validGenre = isValidLength(bookRequest.genre(), 2, 20);
+		if (validGenre && !book.getGenre().equals(bookRequest.genre())) {
+			book.setGenre(bookRequest.genre());
+		}
+		var validSynopsis = isValidLength(bookRequest.synopsis(), 20, 255);
+		if (validSynopsis && !book.getSynopsis().equals(bookRequest.synopsis())) {
+			book.setSynopsis(bookRequest.synopsis());
+		}
+		// TODO: Book cover
+		if (book.getIsArchived() != bookRequest.isArchived()) {
+			book.setIsArchived(bookRequest.isArchived());
+		}
+		if (book.getIsShareable() != bookRequest.isShareable()) {
+			book.setIsShareable(bookRequest.isShareable());
+		}
+		log.info("Updating book completed. Saving to database...");
+		var updatedBook = _bookRepository.save(book);
+		return toBookResponse(updatedBook);
+	}
+
+	public UUID deleteBook(
+					UUID bookId,
+					User user
+	) {
+		var book = _bookRepository.findById(bookId)
+						.orElseThrow(() -> {
+							log.debug("Book not found for id={}", bookId);
+							return new BookNotFoundException("Book not found for id=" + bookId);
+						});
+		log.info("Deleting book with id = {}", book.getId());
+		_bookRepository.delete(book);
+		return book.getId();
 	}
 
 }

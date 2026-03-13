@@ -2,7 +2,9 @@ package com.ahmedhassan.getthebook.controllers;
 
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiGetOperation;
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiSaveOperation;
+import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiUpdateOperation;
 import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
+import com.ahmedhassan.getthebook.dtos.requests.BookUpdateRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedBookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
@@ -149,6 +151,63 @@ public class BookController {
 		log.info("Create new book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.CREATED)
+						.body(response);
+	}
+
+
+	@SecurityRequirement(name = "Bearer Authentication")
+	@Operation(
+					summary = "Update a book",
+					description = "Update an existing book by provided ID for current logged in user"
+	)
+	@PatchMapping("{book-id}")
+	@ApiResponse(
+					responseCode = "200",
+					description = "Book updated successfully",
+					content = @Content(
+									mediaType = "application/json",
+									schema = @Schema(implementation = BookResponse.class)
+					)
+	)
+	@ApiUpdateOperation
+	public ResponseEntity<BookResponse> updateBook(
+					@Parameter(
+									description = "Unique identifier of book",
+									example = "550e8400-e29b-41d4-a716-446655440000",
+									required = true,
+									in = ParameterIn.PATH
+					)
+					@PathVariable("book-id") UUID bookId,
+					@io.swagger.v3.oas.annotations.parameters.RequestBody(
+									description = "Details to update book",
+									required = true,
+									content = @Content(
+													mediaType = "application/json",
+													schema = @Schema(implementation = BookUpdateRequest.class)
+									)
+					)
+					@RequestBody BookUpdateRequest bookRequest,
+					@Parameter(hidden = true)
+					@AuthenticationPrincipal @NonNull User user
+	) {
+		log.info("Update book request received for user email={}", maskEmail(user.getEmail()));
+		var response = _bookService.updateBook(bookId, bookRequest, user);
+		log.info("Update book request executed successfully");
+		return ResponseEntity
+						.status(HttpStatus.OK)
+						.body(response);
+	}
+
+	@DeleteMapping("{book-id}")
+	public ResponseEntity<UUID> deleteBook(
+					@PathVariable("book-id") UUID bookId,
+					@AuthenticationPrincipal @NonNull User user
+	) {
+		log.info("Delete book request received for  user email={}", maskEmail(user.getEmail()));
+		var response = _bookService.deleteBook(bookId, user);
+		log.info("Delete book request executed successfully");
+		return ResponseEntity
+						.status(HttpStatus.OK)
 						.body(response);
 	}
 
