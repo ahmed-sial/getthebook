@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -25,7 +25,12 @@ public class BookShare extends BaseEntity {
 	private Book book;
 
 	@Column(nullable = false)
-	private LocalDateTime sharedAt;
+	private Instant sharedAt;
 	@Column(nullable = false)
-	private LocalDateTime expiresAt;
+	private Instant expiresAt;
+
+	@Transient
+	public Boolean isExpired() {
+		return expiresAt.isBefore(Instant.now());
+	}
 }

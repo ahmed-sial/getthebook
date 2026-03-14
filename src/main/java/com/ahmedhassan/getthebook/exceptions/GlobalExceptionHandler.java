@@ -10,6 +10,7 @@ import jakarta.validation.ConstraintDeclarationException;
 import jakarta.validation.ConstraintDefinitionException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Async;
 import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -348,6 +349,45 @@ public class GlobalExceptionHandler {
 					@NonNull HttpServletRequest request
 	) {
 		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleUserNotFoundException(
+					@NonNull UserNotFoundException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
+	}
+
+	@ExceptionHandler(BookArchivedException.class)
+	public ResponseEntity<ErrorResponse> handleBookArchivedException(
+					@NonNull BookArchivedException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
+	}
+
+	@ExceptionHandler(BookNotShareableException.class)
+	public ResponseEntity<ErrorResponse> handleBookNotShareableException(
+					@NonNull BookNotShareableException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
+	}
+
+	@ExceptionHandler(BookAlreadyBorrowedException.class)
+	public ResponseEntity<ErrorResponse> handleBookAlreadyBorrowedException(
+					@NonNull BookAlreadyBorrowedException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
+	}
+	@ExceptionHandler(BookShareAppealAlreadyExistsException.class)
+	public ResponseEntity<ErrorResponse> handleBookShareAppealAlreadyExistsException(
+					@NonNull BookShareAppealAlreadyExistsException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
 	}
 
 	// Catch-all fallback for any unhandled exception

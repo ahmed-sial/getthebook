@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -30,6 +30,6 @@ public class BookShareAppeal extends BaseEntity {
 	@Column(nullable = false, length = 10)
 	private BookAppealStatus status;
 	@Column(nullable = false)
-	private LocalDateTime bookShareAppealedAt;
-	private LocalDateTime bookShareAppealApprovedAt;
+	private Instant bookShareAppealedAt;
+	private Instant bookShareAppealApprovedAt;
 }

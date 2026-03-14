@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
@@ -37,15 +37,15 @@ public class BaseEntity {
             updatable = false,
             nullable = false
     )
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     void prePersist() {
         if (this.id == null) id = UUID.randomUUID();
-        if (createdAt == null) createdAt = LocalDateTime.now();
-        if (updatedAt == null) updatedAt = LocalDateTime.now();
+        if (createdAt == null) createdAt = Instant.now();
+        if (updatedAt == null) updatedAt = Instant.now();
     }
 }

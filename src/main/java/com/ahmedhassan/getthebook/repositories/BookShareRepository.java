@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface BookShareRepository extends JpaRepository<BookShare, UUID> {
+	Boolean existsByBookIdAndExpiresAtIsNull(UUID bookId);
 }

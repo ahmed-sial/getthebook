@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -19,10 +19,10 @@ public record BookShareAppealResponse(
 				@NotNull UUID bookId,
 				@Schema(description = "Enumeration for the current status of appeal", example = "approved")
 				BookAppealStatus status,
-				@Schema(description = "Timestamp at which appeal was made", example = "2020-03-13T01:00:00.014083")
-				LocalDateTime bookShareAppealAt,
-				@Schema(description = "Timestamp at which appeal was approved", example = "2020-03-13T01:00:00.014083")
-				LocalDateTime bookShareAppealApprovedAt
+				@Schema(description = "Timestamp at which appeal was made", example = "2026-03-14T19:40:34.039914217Z")
+				Instant bookShareAppealedAt,
+				@Schema(description = "Timestamp at which appeal was approved", example = "2026-03-14T19:40:34.039914217Z")
+				Instant bookShareAppealApprovedAt
 
 ) {
 }
