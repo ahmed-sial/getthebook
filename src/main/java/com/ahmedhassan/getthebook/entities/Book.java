@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,4 +41,10 @@ public class Book extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookShareAppeal> bookShareAppeals;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookShare> bookShares;
 }

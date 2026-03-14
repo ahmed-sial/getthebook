@@ -23,8 +23,6 @@ public class BaseEntity {
     @Id
     private UUID id;
 
-
-
     @CreatedBy
     @Column(
             updatable = false

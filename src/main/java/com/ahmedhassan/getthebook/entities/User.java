@@ -50,6 +50,12 @@ public class User extends BaseEntity implements Principal, UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Book> books;
 
+    @OneToMany(mappedBy = "user")
+    private List<BookShareAppeal> bookShareAppeals;
+
+    @OneToMany(mappedBy = "user")
+    private List<BookShare> bookShares;
+
     @Override
     public String getName() {
         return this.email;
