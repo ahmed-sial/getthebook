@@ -1,6 +1,9 @@
 package com.ahmedhassan.getthebook.utils;
 
 import org.jspecify.annotations.NonNull;
+import org.springframework.security.access.AccessDeniedException;
+
+import java.util.UUID;
 
 public class Utils {
 	public static @NonNull String maskEmail(@NonNull String email) {
@@ -9,6 +12,11 @@ public class Utils {
 
 	public static @NonNull Boolean isValidLength(@NonNull String str, int min, int max) {
 		return !str.isEmpty() && str.length() >= min && str.length() <= max;
+	}
+
+	public static void validateAccessToResource(@NonNull UUID toCheck, @NonNull UUID checkAgainst) {
+		if (!toCheck.equals(checkAgainst))
+			throw new AccessDeniedException("You are not allowed to access this resource.");
 	}
 
 }

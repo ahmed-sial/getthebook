@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import static com.ahmedhassan.getthebook.mappers.BookMapper.*;
 import static com.ahmedhassan.getthebook.specifications.BookSpecification.*;
 import static com.ahmedhassan.getthebook.utils.Utils.isValidLength;
+import static com.ahmedhassan.getthebook.utils.Utils.validateAccessToResource;
 
 @Slf4j
 @Service
@@ -29,9 +31,9 @@ public class BookService {
 	private final BookRepository _bookRepository;
 
 	public PagedResponse<BookResponse> findAllBooksExceptCurrentUser(
-					int pageNumber,
-					int pageSize,
-					User user
+					Integer pageNumber,
+					Integer pageSize,
+					@NonNull User user
 	) {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt")
@@ -45,8 +47,8 @@ public class BookService {
 		var books = _bookRepository.findAll(spec, pageable);
 		return toPagedBookResponse(books);
 	}
-
-	public BookResponse findSingleBookById(UUID bookId) {
+	// TODO: Should only be accessed by owner if is archived and not shareable else can be accessed by anyone.
+	public BookResponse findSingleBookById(UUID bookId, User user) {
 		log.info("Fetching book response for book id = {}", bookId);
 		var book = _bookRepository.findById(bookId)
 						.orElseThrow(() -> {
@@ -70,14 +72,15 @@ public class BookService {
 
 	public BookResponse updateBook(
 					UUID bookId,
-					@NonNull BookUpdateRequest bookRequest
+					@NonNull BookUpdateRequest bookRequest,
+					@NonNull User user
 	) {
 		var book = _bookRepository.findById(bookId)
 						.orElseThrow(() -> {
 							log.debug("Book not found for id={}", bookId);
 							return new BookNotFoundException("Book not found for id=" + bookId);
 						});
-
+		validateAccessToResource(book.getUser().getId(), user.getId());
 		log.info("Updating changed fields of book...");
 		if (bookRequest.genre() != null) {
 			var validGenre = isValidLength(bookRequest.genre(), 2, 20);
@@ -110,13 +113,15 @@ public class BookService {
 	}
 
 	public UUID deleteBook(
-					UUID bookId
+					UUID bookId,
+					@NonNull User user
 	) {
 		var book = _bookRepository.findById(bookId)
 						.orElseThrow(() -> {
 							log.debug("Book not found for id={}", bookId);
 							return new BookNotFoundException("Book not found for id=" + bookId);
 						});
+		validateAccessToResource(book.getUser().getId(), user.getId());
 		log.info("Deleting book with id = {}", book.getId());
 		_bookRepository.delete(book);
 		return book.getId();
@@ -135,4 +140,6 @@ public class BookService {
 		return toPagedBookResponse(books);
 	}
 
+
 }
+// TODO: Toggle book's sharing status and archive status

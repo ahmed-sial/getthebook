@@ -2,6 +2,7 @@ package com.ahmedhassan.getthebook.services;
 
 import com.ahmedhassan.getthebook.dtos.requests.BookShareAppealRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookShareAppealResponse;
+import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.Book;
 import com.ahmedhassan.getthebook.entities.BookShareAppeal;
 import com.ahmedhassan.getthebook.entities.User;
@@ -10,15 +11,22 @@ import com.ahmedhassan.getthebook.exceptions.*;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
 import com.ahmedhassan.getthebook.repositories.BookShareAppealRepository;
 import com.ahmedhassan.getthebook.repositories.BookShareRepository;
+import com.ahmedhassan.getthebook.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import static com.ahmedhassan.getthebook.mappers.BookShareAppealMapper.toBookShareAppealResponse;
+import static com.ahmedhassan.getthebook.specifications.BookShareAppealSpecification.withUserId;
+import static com.ahmedhassan.getthebook.utils.Utils.validateAccessToResource;
 
 @Slf4j
 @Service
@@ -88,6 +96,30 @@ public class BookShareAppealService {
 			log.debug("Book already appealed for borrowing for user with id={}", user.getId());
 			throw new BookShareAppealAlreadyExistsException("Book with id=" + book.getId() + " is already appealed for borrowing.");
 		}
+	}
+
+	public PagedResponse<BookShareAppealResponse> fetchCurrentUserBookShareAppeal(
+					Integer pageNumber,
+					Integer pageSize,
+					@NonNull User user
+	) {
+		log.info("Compiling paged request...");
+		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
+		log.info("Compiling specifications...");
+		var spec = Specification.where(withUserId(user.getId()));
+		log.info("Fetching all the appeals for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
+		var response = _bookShareAppealRepository.findAll(spec, pageable);
+		return toBookShareAppealResponse(response);
+	}
+
+	public BookShareAppealResponse fetchSingleBookShareAppeal(
+					UUID appealId,
+					@NonNull User user
+	) {
+		var appeal = _bookShareAppealRepository.findById(appealId)
+						.orElseThrow(() -> new BookShareAppealNotFoundException("Appeal not found with id=" + appealId));
+		validateAccessToResource(appeal.getUser().getId(), user.getId());
+		return toBookShareAppealResponse(appeal);
 	}
 
 	private Boolean activeBorrowRecordExists(@NonNull UUID bookId) {

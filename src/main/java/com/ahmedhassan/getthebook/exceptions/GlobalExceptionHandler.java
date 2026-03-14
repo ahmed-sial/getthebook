@@ -1,23 +1,22 @@
 package com.ahmedhassan.getthebook.exceptions;
 
 import com.ahmedhassan.getthebook.dtos.responses.ErrorResponse;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintDeclarationException;
 import jakarta.validation.ConstraintDefinitionException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Async;
 import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -30,8 +29,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -388,6 +385,14 @@ public class GlobalExceptionHandler {
 					@NonNull HttpServletRequest request
 	) {
 		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
+	}
+
+	@ExceptionHandler(BookShareAppealNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleBookShareAppealNotFoundException(
+					@NonNull BookShareAppealNotFoundException ex,
+					@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
 	}
 
 	// Catch-all fallback for any unhandled exception

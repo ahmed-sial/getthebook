@@ -13,8 +13,6 @@ import java.util.UUID;
 public record BookShareAppealResponse(
 				@Schema(description = "Unique identifier of book share appeal", example = "550e8400-e29b-41d4-a716-446655440000")
 				UUID appealId,
-				@Schema(description = "Unique identifier of user that request for book", example = "550e8400-e29b-41d4-a716-446655440000")
-				@NotNull UUID appealBy,
 				@Schema(description = "Unique identifier of book that was request user", example = "550e8400-e29b-41d4-a716-446655440000")
 				@NotNull UUID bookId,
 				@Schema(description = "Enumeration for the current status of appeal", example = "approved")

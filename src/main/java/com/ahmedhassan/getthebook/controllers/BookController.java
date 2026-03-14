@@ -109,7 +109,7 @@ public class BookController {
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Fetch single book request received for user email={}", maskEmail(user.getEmail()));
-		var response = _bookService.findSingleBookById(bookId);
+		var response = _bookService.findSingleBookById(bookId, user);
 		log.info("Fetch single book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
@@ -191,7 +191,7 @@ public class BookController {
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Update book request received for user email={}", maskEmail(user.getEmail()));
-		var response = _bookService.updateBook(bookId, bookRequest);
+		var response = _bookService.updateBook(bookId, bookRequest, user);
 		log.info("Update book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
@@ -204,7 +204,7 @@ public class BookController {
 					@AuthenticationPrincipal @NonNull User user
 	) {
 		log.info("Delete book request received for user email={}", maskEmail(user.getEmail()));
-		var response = _bookService.deleteBook(bookId);
+		var response = _bookService.deleteBook(bookId, user);
 		log.info("Delete book request executed successfully");
 		return ResponseEntity
 						.status(HttpStatus.OK)
