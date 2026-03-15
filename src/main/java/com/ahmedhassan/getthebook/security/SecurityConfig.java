@@ -1,12 +1,17 @@
 package com.ahmedhassan.getthebook.security;
 
 import com.ahmedhassan.getthebook.security.filters.JwtAuthFilter;
+import com.ahmedhassan.getthebook.security.permissions.BookPermissionEvaluator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final AuthenticationProvider _authenticationProvider;
@@ -52,5 +58,14 @@ public class SecurityConfig {
             .addFilterBefore(_jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     log.info("Security filter chain configuration complete");
     return http.build();
+  }
+
+  @Bean
+  public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+        BookPermissionEvaluator bookPermissionEvaluator
+  ) {
+        var handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setPermissionEvaluator(bookPermissionEvaluator);
+        return handler;
   }
 }

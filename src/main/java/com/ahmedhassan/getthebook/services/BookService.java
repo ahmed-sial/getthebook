@@ -1,5 +1,23 @@
 package com.ahmedhassan.getthebook.services;
 
+import static com.ahmedhassan.getthebook.mappers.BookMapper.toBook;
+import static com.ahmedhassan.getthebook.mappers.BookMapper.toBookResponse;
+import static com.ahmedhassan.getthebook.mappers.BookMapper.toPagedBookResponse;
+import static com.ahmedhassan.getthebook.specifications.BookSpecification.notArchived;
+import static com.ahmedhassan.getthebook.specifications.BookSpecification.shareable;
+import static com.ahmedhassan.getthebook.specifications.BookSpecification.withUserId;
+import static com.ahmedhassan.getthebook.specifications.BookSpecification.withoutUserId;
+import static com.ahmedhassan.getthebook.utils.Utils.isValidLength;
+
+import java.util.UUID;
+
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
 import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
 import com.ahmedhassan.getthebook.dtos.requests.BookUpdateRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
@@ -7,21 +25,9 @@ import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.exceptions.BookNotFoundException;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
-
-import static com.ahmedhassan.getthebook.mappers.BookMapper.*;
-import static com.ahmedhassan.getthebook.specifications.BookSpecification.*;
-import static com.ahmedhassan.getthebook.utils.Utils.isValidLength;
-import static com.ahmedhassan.getthebook.utils.Utils.validateAccessToResource;
 
 @Slf4j
 @Service
@@ -31,56 +37,52 @@ public class BookService {
 	private final BookRepository _bookRepository;
 
 	public PagedResponse<BookResponse> findAllBooksExceptCurrentUser(
-					Integer pageNumber,
-					Integer pageSize,
-					@NonNull User user
-	) {
+			Integer pageNumber,
+			Integer pageSize,
+			@NonNull User user) {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt")
-						.descending());
+				.descending());
 		var spec = Specification.allOf(
-						shareable(),
-						notArchived(),
-						withoutUserId(user.getId())
-		);
+				shareable(),
+				notArchived(),
+				withoutUserId(user.getId()));
 		log.info("Fetching all the books for paged response, pageNumber={}, pageSize={}", pageNumber, pageSize);
 		var books = _bookRepository.findAll(spec, pageable);
 		return toPagedBookResponse(books);
 	}
-	// TODO: Should only be accessed by owner if is archived and not shareable else can be accessed by anyone.
-	public BookResponse findSingleBookById(UUID bookId, User user) {
+
+	@PreAuthorize("hasPermission(#bookId, 'Book', 'READ')")
+	public BookResponse findSingleBookById(UUID bookId) {
 		log.info("Fetching book response for book id = {}", bookId);
 		var book = _bookRepository.findById(bookId)
-						.orElseThrow(() -> {
-							log.debug("Book not found for id={}", bookId);
-							return new BookNotFoundException("Book not found for id=" + bookId);
-						});
+				.orElseThrow(() -> {
+					log.debug("Book not found for id={}", bookId);
+					return new BookNotFoundException("Book not found for id=" + bookId);
+				});
 		return toBookResponse(book);
 	}
 
 	public BookResponse createNewBook(
-					BookRequest bookRequest,
-					User user
-	) {
+			BookRequest bookRequest,
+			@NonNull User user) {
 		var book = toBook(bookRequest);
-		//TODO: book.setBookCover("");
+		// TODO: book.setBookCover("");
 		book.setUser(user);
 		log.info("Saving new book with id = {}", book.getId());
 		var savedBook = _bookRepository.save(book);
 		return toBookResponse(savedBook);
 	}
 
+	@PreAuthorize("hasPermission(#bookId, 'Book', 'UPDATE')")
 	public BookResponse updateBook(
-					UUID bookId,
-					@NonNull BookUpdateRequest bookRequest,
-					@NonNull User user
-	) {
+			UUID bookId,
+			@NonNull BookUpdateRequest bookRequest) {
 		var book = _bookRepository.findById(bookId)
-						.orElseThrow(() -> {
-							log.debug("Book not found for id={}", bookId);
-							return new BookNotFoundException("Book not found for id=" + bookId);
-						});
-		validateAccessToResource(book.getUser().getId(), user.getId());
+				.orElseThrow(() -> {
+					log.debug("Book not found for id={}", bookId);
+					return new BookNotFoundException("Book not found for id=" + bookId);
+				});
 		log.info("Updating changed fields of book...");
 		if (bookRequest.genre() != null) {
 			var validGenre = isValidLength(bookRequest.genre(), 2, 20);
@@ -112,26 +114,23 @@ public class BookService {
 		return toBookResponse(updatedBook);
 	}
 
+	@PreAuthorize("hasPermission(#bookId, 'Book', 'DELETE')")
 	public UUID deleteBook(
-					UUID bookId,
-					@NonNull User user
-	) {
+			UUID bookId) {
 		var book = _bookRepository.findById(bookId)
-						.orElseThrow(() -> {
-							log.debug("Book not found for id={}", bookId);
-							return new BookNotFoundException("Book not found for id=" + bookId);
-						});
-		validateAccessToResource(book.getUser().getId(), user.getId());
+				.orElseThrow(() -> {
+					log.debug("Book not found for id={}", bookId);
+					return new BookNotFoundException("Book not found for id=" + bookId);
+				});
 		log.info("Deleting book with id = {}", book.getId());
 		_bookRepository.delete(book);
 		return book.getId();
 	}
 
 	public PagedResponse<BookResponse> findAllBooksByOwner(
-					Integer pageNumber,
-					Integer pageSize,
-					@NonNull User user
-	) {
+			Integer pageNumber,
+			Integer pageSize,
+			@NonNull User user) {
 		log.info("Compiling paged request...");
 		var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
 		var spec = Specification.where(withUserId(user.getId()));
@@ -140,6 +139,33 @@ public class BookService {
 		return toPagedBookResponse(books);
 	}
 
+	@PreAuthorize("hasPermission(#bookId, 'Book', 'UPDATE')")
+	public BookResponse toggleBookSharingStatus(UUID bookId) {
+		var book = _bookRepository.findById(bookId)
+				.orElseThrow(() -> {
+					log.debug("Book not found for id={}", bookId);
+					return new BookNotFoundException("Book not found for id=" + bookId);
+				});
+		log.info("Updating book's sharing status from {} -> {} for id={}", book.getIsShareable(), !book.getIsShareable(),
+				book.getId());
+		book.setIsShareable(!book.getIsShareable());
+		log.info("Saving book's updated information...");
+		var updatedBook = _bookRepository.save(book);
+		return toBookResponse(updatedBook);
+	}
 
+	@PreAuthorize("hasPermission(#bookId, 'Book', 'UPDATE')")
+	public BookResponse toggleBookArchiveStatus(UUID bookId) {
+		var book = _bookRepository.findById(bookId)
+				.orElseThrow(() -> {
+					log.debug("Book not found for id={}", bookId);
+					return new BookNotFoundException("Book not found for id=" + bookId);
+				});
+		log.info("Updating book's archive status from {} -> {} for id={}", book.getIsArchived(), !book.getIsArchived(),
+				book.getId());
+		book.setIsArchived(!book.getIsArchived());
+		log.info("Saving book's updated information...");
+		var updatedBook = _bookRepository.save(book);
+		return toBookResponse(updatedBook);
+	}
 }
-// TODO: Toggle book's sharing status and archive status
