@@ -1,10 +1,5 @@
 package com.ahmedhassan.getthebook.security;
 
-import com.ahmedhassan.getthebook.security.filters.JwtAuthFilter;
-import com.ahmedhassan.getthebook.security.permissions.BookPermissionEvaluator;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -18,6 +13,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.ahmedhassan.getthebook.security.filters.JwtAuthFilter;
+import com.ahmedhassan.getthebook.security.permissions.AppPermissionEvaluator;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -62,10 +63,10 @@ public class SecurityConfig {
 
   @Bean
   public MethodSecurityExpressionHandler methodSecurityExpressionHandler(
-        BookPermissionEvaluator bookPermissionEvaluator
+        AppPermissionEvaluator appPermissionEvaluator
   ) {
         var handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setPermissionEvaluator(bookPermissionEvaluator);
+        handler.setPermissionEvaluator(appPermissionEvaluator);
         return handler;
   }
 }

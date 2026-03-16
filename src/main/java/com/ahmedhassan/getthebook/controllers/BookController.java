@@ -139,7 +139,7 @@ public class BookController {
 				.body(response);
 	}
 
-	@PatchMapping("{book-id}/share-status")
+	@PatchMapping("{book-id}/share-toggle")
 	public ResponseEntity<BookResponse> toggleBookSharingStatus(@PathVariable("book-id") UUID bookId,
 			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Toggle book's sharing status request recieved for email={}", maskEmail(user.getEmail()));
@@ -148,7 +148,7 @@ public class BookController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
-	@PatchMapping("{book-id}/archive-status")
+	@PatchMapping("{book-id}/archive-toggle")
 	public ResponseEntity<BookResponse> toggleBookArchiveStatus(@PathVariable("book-id") UUID bookId,
 			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Toggle book's archive status request recieved for email={}", maskEmail(user.getEmail()));

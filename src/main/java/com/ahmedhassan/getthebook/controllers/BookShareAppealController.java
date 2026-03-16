@@ -31,25 +31,21 @@ public class BookShareAppealController {
 
 	@PostMapping
 	public ResponseEntity<BookShareAppealResponse> createNewBookShareAppeal(
-					@RequestBody @Valid BookShareAppealRequest appealRequest,
-					@AuthenticationPrincipal @NonNull User user
-	) {
+			@RequestBody @Valid BookShareAppealRequest appealRequest,
+			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Create new book share appeal request received for email: {}", maskEmail(user.getEmail()));
 		var response = _bookShareAppealService.createNewBookShareAppeal(appealRequest, user);
 		log.info("Create new book share appeal request executed successfully");
 		return ResponseEntity
-						.status(HttpStatus.CREATED)
-						.body(response);
+				.status(HttpStatus.CREATED)
+				.body(response);
 	}
 
 	@GetMapping
 	public ResponseEntity<PagedResponse<BookShareAppealResponse>> fetchCurrentUserBookShareAppeals(
-					@RequestParam(name = "page", defaultValue = "0", required = false)
-					@Min(0) Integer pageNumber,
-					@RequestParam(name = "size", defaultValue = "10", required = false)
-					@Max(50) Integer pageSize,
-					@AuthenticationPrincipal @NonNull User user
-	) {
+			@RequestParam(name = "page", defaultValue = "0", required = false) @Min(0) Integer pageNumber,
+			@RequestParam(name = "size", defaultValue = "10", required = false) @Max(50) Integer pageSize,
+			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Fetch current user book share appeals request received for email: {}", maskEmail(user.getEmail()));
 		var response = _bookShareAppealService.fetchCurrentUserBookShareAppeal(pageNumber, pageSize, user);
 		log.info("Fetch current user book share appeals request executed successfully");
@@ -58,17 +54,42 @@ public class BookShareAppealController {
 
 	@GetMapping("{appeal-id}")
 	public ResponseEntity<BookShareAppealResponse> fetchSingleBookShareAppeal(
-					@PathVariable("appeal-id") UUID appealId,
-					@AuthenticationPrincipal @NonNull User user
-	) {
+			@PathVariable("appeal-id") UUID appealId,
+			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Fetch single book share appeal request received for email: {}", maskEmail(user.getEmail()));
-		var response = _bookShareAppealService.fetchSingleBookShareAppeal(appealId, user);
+		var response = _bookShareAppealService.fetchSingleBookShareAppeal(appealId);
 		log.info("Fetch single book share appeal request executed successfully");
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	// TODO: List all the pending appeals
-	// TODO: List all the approved appeals
-	// TODO: Approve a pending request
-	// TODO: Reject a pending request
 
+	// TODO
+	@DeleteMapping("{appeal-id}")
+	public ResponseEntity<UUID> cancelBookShareAppeal(
+			@PathVariable("appeal-id") UUID appealId,
+			@AuthenticationPrincipal @NonNull User user) {
+		log.info("Update single book share appeal request received for email: {}", maskEmail(user.getEmail()));
+		var response = _bookShareAppealService.deleteBookShareAppeal(appealId);
+		log.info("Update single book share appeal request executed sucessfully");
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	@PatchMapping("{appeal-id}/approve")
+	public ResponseEntity<BookShareAppealResponse> approveBookShareAppeal(
+			@PathVariable("appeal-id") UUID appealId,
+			@AuthenticationPrincipal @NonNull User user) {
+		log.info("Approve book share appeal request recieved for email: {}", maskEmail(user.getEmail()));
+		var response = _bookShareAppealService.approveBookShareAppeal(appealId);
+		log.info("Approve book share appeal request executed sucessfully");
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	@PatchMapping("{appeal-id}/reject")
+	public ResponseEntity<BookShareAppealResponse> rejectBookShareAppeal(
+			@PathVariable("appeal-id") UUID appealId,
+			@AuthenticationPrincipal @NonNull User user) {
+		log.info("Reject book share appeal request recieved for email: {}", maskEmail(user.getEmail()));
+		var response = _bookShareAppealService.rejectBookShareAppeal(appealId);
+		log.info("Reject book share appeal request executed sucessfully");
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 }

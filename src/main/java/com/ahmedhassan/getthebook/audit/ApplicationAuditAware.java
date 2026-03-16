@@ -23,15 +23,15 @@ public class ApplicationAuditAware implements AuditorAware<UUID> {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
-			log.debug("No authentication found");
+			log.debug("No authentication found for auditing...");
 			return Optional.of(SystemAuditor.SYSTEM_USER_ID);
 		}
 
 		if (auth.getPrincipal() instanceof User user) {
-			log.debug("Authenticated user found");
+			log.debug("Authenticated user found for auditing...");
 			return Optional.of(user.getId());
 		}
-		log.debug("No authentication found");
+		log.debug("No authentication found for auditing...");
 		return Optional.of(SystemAuditor.SYSTEM_USER_ID);
 	}
 }

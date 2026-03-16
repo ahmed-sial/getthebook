@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.ahmedhassan.getthebook.entities.Book;
 
 public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificationExecutor<Book> {
-  Boolean existsByUserIdAndBookId(UUID bookId, UUID userId);
+  Boolean existsByUserIdAndId(UUID userId, UUID bookId);
 }

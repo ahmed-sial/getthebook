@@ -16,6 +16,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -393,6 +394,20 @@ public class GlobalExceptionHandler {
 					@NonNull HttpServletRequest request
 	) {
 		return buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex, request);
+	}
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
+		@NonNull AuthorizationDeniedException ex,
+		@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.UNAUTHORIZED, ex, request);
+	}
+	@ExceptionHandler(BookShareAppealAlreadyApproved.class)
+public ResponseEntity<ErrorResponse> handleBookShareAppealAlreadyApprovedException(
+		@NonNull BookShareAppealAlreadyApproved ex,
+		@NonNull HttpServletRequest request
+	) {
+		return buildErrorResponseEntity(HttpStatus.CONFLICT, ex, request);
 	}
 
 	// Catch-all fallback for any unhandled exception
