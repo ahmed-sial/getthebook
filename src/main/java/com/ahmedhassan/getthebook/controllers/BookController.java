@@ -187,5 +187,4 @@ public class BookController {
 		log.info("Fetch all book share records request executed successfully");
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-// TODO: page class for docs
 }
