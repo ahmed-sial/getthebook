@@ -17,6 +17,7 @@ public class BookShareAppealMapper {
 						.bookId(bookShareAppeal.getBook().getId())
 						.status(bookShareAppeal.getStatus())
 						.bookShareAppealedAt(bookShareAppeal.getBookShareAppealedAt())
+						.days(bookShareAppeal.getDays())
 						.bookShareAppealApprovedAt(bookShareAppeal.getBookShareAppealApprovedAt())
 						.build();
 	}

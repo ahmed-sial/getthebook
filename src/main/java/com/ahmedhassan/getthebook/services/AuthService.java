@@ -51,7 +51,7 @@ public class AuthService {
 						.lastName(registerRequest.lastName())
 						.email(registerRequest.email())
 						.password(_passwordEncoder.encode(registerRequest.password()))
-						.isAccountEnabled(true) // TODO: Implement email validation
+						.isAccountEnabled(true)
 						.isAccountLocked(false)
 						.role(userRole)
 						.build();

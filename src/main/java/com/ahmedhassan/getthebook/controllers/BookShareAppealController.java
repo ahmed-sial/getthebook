@@ -2,6 +2,7 @@ package com.ahmedhassan.getthebook.controllers;
 
 import com.ahmedhassan.getthebook.dtos.requests.BookShareAppealRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookShareAppealResponse;
+import com.ahmedhassan.getthebook.dtos.responses.BookShareResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.services.BookShareAppealService;
@@ -74,13 +75,13 @@ public class BookShareAppealController {
 	}
 
 	@PatchMapping("{appeal-id}/approve")
-	public ResponseEntity<BookShareAppealResponse> approveBookShareAppeal(
+	public ResponseEntity<BookShareResponse> approveBookShareAppeal(
 			@PathVariable("appeal-id") UUID appealId,
 			@AuthenticationPrincipal @NonNull User user) {
 		log.info("Approve book share appeal request recieved for email: {}", maskEmail(user.getEmail()));
 		var response = _bookShareAppealService.approveBookShareAppeal(appealId);
 		log.info("Approve book share appeal request executed sucessfully");
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PatchMapping("{appeal-id}/reject")

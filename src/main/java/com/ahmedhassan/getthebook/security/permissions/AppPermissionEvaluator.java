@@ -1,5 +1,6 @@
 package com.ahmedhassan.getthebook.security.permissions;
 
+import com.ahmedhassan.getthebook.repositories.BookShareRepository;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.ahmedhassan.getthebook.entities.Book;
+import com.ahmedhassan.getthebook.entities.BookShare;
 import com.ahmedhassan.getthebook.entities.BookShareAppeal;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class AppPermissionEvaluator implements PermissionEvaluator {
+  private final BookShareRepository _bookShareRepository;
   private final BookRepository _bookRepository;
   private final BookShareAppealRepository _bookShareAppealRepository;
 
@@ -25,11 +28,14 @@ public class AppPermissionEvaluator implements PermissionEvaluator {
   public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
     var user = (User) authentication.getPrincipal();
     // used when have access to object in hand
-    if (targetDomainObject instanceof Book book) {
+    if (targetDomainObject instanceof Book book)
       return isOwner(user, book);
-    }
+
     if (targetDomainObject instanceof BookShareAppeal appeal)
       return appeal.getUser().getId().equals(user.getId());
+
+    if (targetDomainObject instanceof BookShare bookShare)
+      return bookShare.getBook().getUser().getId().equals(user.getId());
 
     return false;
   }
@@ -69,6 +75,12 @@ public class AppPermissionEvaluator implements PermissionEvaluator {
         default -> false;
       };
 
+      case "BookShare" -> switch ((String) permission) {
+        case "READ" -> _bookShareRepository.findById((UUID) targetId)
+        .map(share -> share.getBook().getUser().getId().equals(user.getId()))
+        .orElse(false);
+        default -> false;
+      };
       default -> false;
     };
   }

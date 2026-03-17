@@ -3,13 +3,17 @@ package com.ahmedhassan.getthebook.controllers;
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiGetOperation;
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiSaveOperation;
 import com.ahmedhassan.getthebook.annotations.openapi.composed.ApiUpdateOperation;
+import com.ahmedhassan.getthebook.configurations.OpenApiConfig;
 import com.ahmedhassan.getthebook.dtos.requests.BookRequest;
 import com.ahmedhassan.getthebook.dtos.requests.BookUpdateRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookResponse;
+import com.ahmedhassan.getthebook.dtos.responses.BookShareResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedBookResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.services.BookService;
+import com.ahmedhassan.getthebook.services.BookShareService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -42,7 +46,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Tag(name = "Book", description = "Manage books in the system")
 public class BookController {
 
-	private final BookService _bookService;
+  private final BookService _bookService;
+	private final BookShareService _bookShareService;
 
 	@SecurityRequirement(name = "Bearer Authentication")
 	@GetMapping
@@ -154,6 +159,16 @@ public class BookController {
 		log.info("Toggle book's archive status request recieved for email={}", maskEmail(user.getEmail()));
 		var response = _bookService.toggleBookArchiveStatus(bookId);
 		log.info("Toggle book's archive status request executed successfully");
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	@GetMapping("{book-id}/shares")
+	public ResponseEntity<PagedResponse<BookShareResponse>> fetchAllBookShareRecords(
+		@RequestParam(name = "page", defaultValue = "0", required = false) Integer pageNumber,
+		@RequestParam(name = "size", defaultValue = "10", required = false) Integer pageSize,
+		@PathVariable("book-id") UUID bookId
+	) {
+		var response = _bookShareService.getAllBookShareRecords(pageNumber, pageSize, bookId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 

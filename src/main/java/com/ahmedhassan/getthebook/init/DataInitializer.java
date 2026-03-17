@@ -27,8 +27,8 @@ public class DataInitializer implements CommandLineRunner {
 	@Transactional
 	public void run(String @NonNull ... args) {
 		log.info("Initializing data...");
-		Role userRole = createRoleIfAbsent(UserRoles.USER.name());
-		Role adminRole = createRoleIfAbsent(UserRoles.ADMIN.name());
+		createRoleIfAbsent(UserRoles.USER.name());
+		createRoleIfAbsent(UserRoles.ADMIN.name());
 		Role systemRole = createRoleIfAbsent(UserRoles.SYSTEM.name());
 
 		if (!_userRepository.existsById(SystemAuditor.SYSTEM_USER_ID)) {

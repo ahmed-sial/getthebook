@@ -14,9 +14,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.ahmedhassan.getthebook.dtos.requests.BookShareAppealRequest;
+import com.ahmedhassan.getthebook.dtos.requests.BookShareRequest;
 import com.ahmedhassan.getthebook.dtos.responses.BookShareAppealResponse;
+import com.ahmedhassan.getthebook.dtos.responses.BookShareResponse;
 import com.ahmedhassan.getthebook.dtos.responses.PagedResponse;
 import com.ahmedhassan.getthebook.entities.Book;
+import com.ahmedhassan.getthebook.entities.BookShare;
 import com.ahmedhassan.getthebook.entities.BookShareAppeal;
 import com.ahmedhassan.getthebook.entities.User;
 import com.ahmedhassan.getthebook.enums.BookAppealStatus;
@@ -27,6 +30,7 @@ import com.ahmedhassan.getthebook.exceptions.BookNotShareableException;
 import com.ahmedhassan.getthebook.exceptions.BookShareAppealAlreadyApproved;
 import com.ahmedhassan.getthebook.exceptions.BookShareAppealAlreadyExistsException;
 import com.ahmedhassan.getthebook.exceptions.BookShareAppealNotFoundException;
+import com.ahmedhassan.getthebook.mappers.BookShareMapper;
 import com.ahmedhassan.getthebook.repositories.BookRepository;
 import com.ahmedhassan.getthebook.repositories.BookShareAppealRepository;
 import com.ahmedhassan.getthebook.repositories.BookShareRepository;
@@ -41,6 +45,7 @@ public class BookShareAppealService {
 	private final BookShareAppealRepository _bookShareAppealRepository;
 	private final BookRepository _bookRepository;
 	private final BookShareRepository _bookShareRepository;
+	private final BookShareService _bookShareService;
 
 	public BookShareAppealResponse createNewBookShareAppeal(
 			@NonNull BookShareAppealRequest appealRequest,
@@ -106,7 +111,7 @@ public class BookShareAppealService {
 	}
 
 	@PreAuthorize("hasPermission(#appealId, 'BookShareAppeal', 'APPROVE')")
-	public BookShareAppealResponse approveBookShareAppeal(
+	public BookShareResponse approveBookShareAppeal(
 			UUID appealId) {
 		log.info("Fetching book share appeal with id={}", appealId);
 		var appeal = _bookShareAppealRepository.findById(appealId)
@@ -123,8 +128,9 @@ public class BookShareAppealService {
 		appeal.setBookShareAppealApprovedAt(Instant.now());
 		appeal.setStatus(BookAppealStatus.APPROVED);
 		log.info("Saving book share appeal with id={}", appealId);
-		var updatedAppeal = _bookShareAppealRepository.save(appeal);
-		return toBookShareAppealResponse(updatedAppeal);
+		_bookShareAppealRepository.save(appeal);
+		log.info("Saving book share record for approved appeal with id={}", appealId);
+		return _bookShareService.createNewBookShareRecord(BookShareRequest.builder().bookId(appeal.getBook().getId()).build(), appeal.getDays(), appeal.getUser());
 	}
 
 	@PreAuthorize("hasPermission(#appealId, 'BookShareAppeal', 'REJECT')")

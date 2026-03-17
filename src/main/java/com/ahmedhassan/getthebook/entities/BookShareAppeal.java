@@ -29,6 +29,9 @@ public class BookShareAppeal extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 10)
 	private BookAppealStatus status;
+
+	@Column(nullable = false)
+	private Integer days;
 	@Column(nullable = false)
 	private Instant bookShareAppealedAt;
 	private Instant bookShareAppealApprovedAt;
