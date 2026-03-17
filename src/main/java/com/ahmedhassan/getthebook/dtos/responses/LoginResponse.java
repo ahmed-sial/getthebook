@@ -8,14 +8,18 @@ import java.util.UUID;
 @Builder
 @Schema(name = "RegisterResponse", description = "User details with JWT token for successful user login")
 public record LoginResponse(
-				@Schema(description = "User unique ID")
+				@Schema(description = "User unique ID", example = "")
 				UUID id,
+
 				@Schema(description = "User first name", example = "John")
 				String firstName,
+
 				@Schema(description = "User last name", example = "Doe")
 				String lastName,
+
 				@Schema(description = "User email", example = "johndoe@example.com")
 				String email,
+
 				@Schema(description = "JWT token")
 				String token
 ) {

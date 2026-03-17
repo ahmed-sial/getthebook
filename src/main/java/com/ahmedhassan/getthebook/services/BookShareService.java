@@ -7,6 +7,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +28,7 @@ import static com.ahmedhassan.getthebook.specifications.BookShareSpecification.w
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookShareService {
@@ -33,13 +36,16 @@ public class BookShareService {
   private final BookRepository _bookRepository;
 
   BookShareResponse createNewBookShareRecord(
-      BookShareRequest bookShareRequest,
-      Integer days,
-      User user) {
+          @NonNull BookShareRequest bookShareRequest,
+          Integer days,
+          User user) {
+    log.info("Fetching book details...");
     var book = _bookRepository.findById(bookShareRequest.bookId())
         .orElseThrow(() -> {
+          log.debug("Book not found with id {}", bookShareRequest.bookId());
           return new BookNotFoundException("Book not found with id=" + bookShareRequest.bookId());
         });
+    log.info("Compiling new book share record information...");
     var rawBookShare = BookShare
         .builder()
         .user(user)
@@ -47,6 +53,7 @@ public class BookShareService {
         .sharedAt(Instant.now())
         .expiresAt(Instant.now().plus(Duration.ofDays(days)))
         .build();
+    log.info("Saving book share record information...");
     var bookShare = _bookShareRepository.save(rawBookShare);
     return tBookShareResponse(bookShare);
   }
@@ -54,8 +61,10 @@ public class BookShareService {
   public BookShareResponse getSingleBookShareRecord(
     UUID bookShareId
   ) {
+    log.info("Fetching book share record information...");
     var record = _bookShareRepository.findById(bookShareId)
     .orElseThrow(() -> {
+      log.debug("Book share record not found with id {}", bookShareId);
       return new BookShareRecordNotFound("Book share record not found with id=" + bookShareId);
     });
     return tBookShareResponse(record);
@@ -69,6 +78,7 @@ public class BookShareService {
   ) {
     var pageable = PageRequest.of(pageNumber, pageSize, Sort.by("createdAt").descending());
     var spec = Specification.where(withBookId(bookId));
+    log.info("Fetching book share records information...");
     var records = _bookShareRepository.findAll(spec, pageable);
     return toPagedBookShareResponse(records);
   }

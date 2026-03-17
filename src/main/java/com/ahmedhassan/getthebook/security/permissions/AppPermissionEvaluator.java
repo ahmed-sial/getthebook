@@ -4,6 +4,7 @@ import com.ahmedhassan.getthebook.repositories.BookShareRepository;
 import java.io.Serializable;
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -25,28 +26,30 @@ public class AppPermissionEvaluator implements PermissionEvaluator {
   private final BookShareAppealRepository _bookShareAppealRepository;
 
   @Override
-  public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+  public boolean hasPermission(@NonNull Authentication authentication, @NonNull Object targetDomainObject, @NonNull Object permission) {
     var user = (User) authentication.getPrincipal();
+    if (user == null) {
+      return false;
+    }
     // used when have access to object in hand
-    if (targetDomainObject instanceof Book book)
-      return isOwner(user, book);
+	  return switch (targetDomainObject) {
+		  case Book book -> isOwner(user, book);
+		  case BookShareAppeal appeal -> appeal.getUser().getId().equals(user.getId());
+		  case BookShare bookShare -> bookShare.getBook().getUser().getId().equals(user.getId());
+		  default -> false;
+	  };
 
-    if (targetDomainObject instanceof BookShareAppeal appeal)
-      return appeal.getUser().getId().equals(user.getId());
-
-    if (targetDomainObject instanceof BookShare bookShare)
-      return bookShare.getBook().getUser().getId().equals(user.getId());
-
-    return false;
   }
 
   @Override
-  public boolean hasPermission(Authentication authentication,
-      Serializable targetId,
-      String targetType,
-      Object permission) {
+  public boolean hasPermission(@NonNull Authentication authentication,
+                               @NonNull Serializable targetId,
+                               @NonNull String targetType,
+                               @NonNull Object permission) {
     User user = (User) authentication.getPrincipal();
-
+    if (user == null) {
+      return false;
+    }
     return switch (targetType) {
 
       case "Book" -> switch ((String) permission) {

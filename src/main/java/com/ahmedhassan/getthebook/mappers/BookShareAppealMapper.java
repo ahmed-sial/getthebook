@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 
 @Slf4j
 public class BookShareAppealMapper {
-	public static BookShareAppealResponse toBookShareAppealResponse(BookShareAppeal bookShareAppeal) {
+	public static BookShareAppealResponse toBookShareAppealResponse(@NonNull BookShareAppeal bookShareAppeal) {
 		log.info("Converting BookShareAppeal to BookShareAppealResponse");
 		return BookShareAppealResponse
 						.builder()
