@@ -1,0 +1,37 @@
+services:
+  postgres:
+    container_name: postgres-bsn
+    image: postgres:16
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: book_social_network
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - spring-bsn-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U username -d book_social_network"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  bsn-api:
+    container_name: bsn-api
+    image: bsn/bsn:1.0.0
+    ports:
+      - 8080:8080
+    networks:
+      - spring-bsn-net
+    depends_on:
+       postgres:
+         condition: service_healthy
+networks:
+  spring-bsn-net:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
